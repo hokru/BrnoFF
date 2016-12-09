@@ -1,0 +1,8 @@
+**************************
+gas phase input
+&cntrl
+imin=0, ntx=1,
+ntb=0, ntc=1, ntf=1,
+cut = 999
+&end
+
