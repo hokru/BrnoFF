@@ -78,49 +78,55 @@ nfrag=0
 ! 3 1 = 4
 ! 1 2 = 3
 
+! count fragments and allocate dynamically...
+! to-be-done
+
+
+! assignt fragments
 exclude(1)=.true.
-do i=1,nat
+
+
+atomloop: do i=1,nat
 
 if(debug) then
-print*,' ATOM: ', i
-print*,'   flen',flen(1:nfrag)
-endif
+  print*,' ATOM: ', i
+  print*,'   flen',flen(1:nfrag)
+  endif
 
-! atom bound to a previous fragment?
-assigned=.false.
-fragloop: do idf=1,nfrag
-            if(debug)      print*,'    frag:',idf,flen(idf)
-             do k=1,flen(idf)
-                idx=ifrag(k,idf)
-                if(debug) print*,'      idf/idn/atom ',idf,k,idx
-                if(bond(i,idx)==1.and..not.assigned) then
-                  if(debug) print*,'               --> bound to atom ',idx
-                   assigned=.true.
-!                   idn=idn+1
-                   iidn(idf)=iidn(idf)+1
-                   idn=iidn(idf)
-                   flen(idf)=flen(idf)+1
-                   print*,'X',idn,flen(idf)
-                   ifrag(idn,idf)=i
-                   exclude(i)=.true.
-                endif
-             enddo
-enddo fragloop
+  ! atom bound to a previous fragment?
+  assigned=.false.
+  fragloop: do idf=1,nfrag
+	      if(debug)      print*,'    frag:',idf,flen(idf)
+	       do k=1,flen(idf)
+		  idx=ifrag(k,idf)
+		  if(debug) print*,'      idf/idn/atom ',idf,k,idx
+		  if(bond(i,idx)==1.and..not.assigned) then
+		    if(debug) print*,'               --> bound to atom ',idx
+		     assigned=.true.
+  !                   idn=idn+1
+		     iidn(idf)=iidn(idf)+1
+		     idn=iidn(idf)
+		     flen(idf)=flen(idf)+1
+  !                   print*,'X',idn,flen(idf)
+		     ifrag(idn,idf)=i
+		     exclude(i)=.true.
+		  endif
+	       enddo
+  enddo fragloop
 
-if(.not.assigned) then
-if(debug) print*,'--> nfrag+1 for atom ',i
-!idn=1
-nfrag=nfrag+1
-iidn(nfrag)=1
-idn=iidn(idf)
-if(nfrag>maxfrag) stop ' increase maxfrag!'
-flen(nfrag)=1
-ifrag(idn,nfrag)=i
-endif
+  if(.not.assigned) then
+  if(debug) print*,'--> nfrag+1 for atom ',i
+  !idn=1
+  nfrag=nfrag+1
+  iidn(nfrag)=1
+  idn=iidn(idf)
+  if(nfrag>maxfrag) stop ' increase maxfrag!'
+  flen(nfrag)=1
+  ifrag(idn,nfrag)=i
+  endif
 
-if(debug) call prmati(6,ifrag,6,2,'ifrag')
-enddo
-
+  if(debug) call prmati(6,ifrag,6,2,'ifrag')
+enddo atomloop
 
 
 print*,'# fragments found',nfrag

@@ -476,7 +476,7 @@ read(io,'(a)') aa !dummy
 read(io,'(a)') aa !dummy
 do i=1,n
  read(io,*) el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i)
-  print*, el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i)
+!  print*, el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i)
  call elem(el,ia(i))
 enddo
 close(io)

@@ -22,11 +22,15 @@ $(info Building: $(GIT_VERSION))
 
 OPENBLAS=/usr/qc/openblas_lib/
 
-  FC = gfortran 
-  FLAGS= -O3 -ffree-line-length-none -m64 
+#  FC = gfortran 
+#  FLAGS= -O3 -ffree-line-length-none -m64 
 #  FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64 
 #  LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
+
+ FC=pgfortran -Bstatic -mp
+# FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback
+ FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
 
 # targets:
 .PHONY: all
