@@ -31,7 +31,6 @@ do k=1,nfrag-1
       dz=fmol(k)%xyz(3,i)-fmol(l)%xyz(3,j)
       rij=(dx*dx+dy*dy+dz*dz) ! rij^2
       irij=1d0/sqrt(rij)
-!      rij=rab2(fmol(k)%xyz(1,i),fmol(l)%xyz(1,j))  ! rij^2
       rij6=rij**3                  ! rij^6
       r0ij6=r0ij**6                  ! rij^6
       a=eij*(r0ij6*r0ij6)

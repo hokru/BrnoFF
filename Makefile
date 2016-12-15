@@ -11,14 +11,25 @@
  LennardJones.f90\
  bond.f90\
  param.f90\
- main.f90\
 
-OBJS=$(SOURCES:.f90=.o)
+# sources needed pre-processing
+ FSOURCES=\
+ main.F90\
+
+OBJS=$(SOURCES:.f90=.o) $(FSOURCES:.F90=.o)
 
 BUILID:=$(shell date)
 GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 $(info Building: $(GIT_VERSION))
 
+
+#------- openmp parallelization --------------
+# set to "yes" if openmp is desired
+# "make clean" is needed after (de)activation!
+
+USE_OMP=yes
+
+#------- openmp parallelization --------------
 
 OPENBLAS=/usr/qc/openblas_lib/
 
@@ -28,9 +39,16 @@ OPENBLAS=/usr/qc/openblas_lib/
 #  LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 
- FC=pgfortran -Bstatic -mp
+
+# PGI
+ FC=pgfortran -Bstatic 
 # FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback
  FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
+
+ifeq ($(USE_OMP),yes)
+ DFLAGS= -DOPENMP
+ FLAGS+= -mp
+endif
 
 # targets:
 .PHONY: all
@@ -55,6 +73,9 @@ version:
 	@echo "making $@ from $<"
 	$(FC) $(FLAGS) -c $< -o $@
 
+%.o: %.F90
+	@echo "making $@ from $<"
+	$(FC) $(DFLAGS) $(FLAGS)  -c $< -o $@  
 
 $(PROG):$(OBJS) 
 	$(FC) $(LINK) $(OBJS) $(LIBS) -o $(PROG)

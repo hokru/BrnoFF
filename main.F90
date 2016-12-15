@@ -17,6 +17,10 @@ type(FFdata)   :: FF
 real(8) :: start_time, end_time
 real(8) :: time_nb,time_frag, time_ff
 
+#ifdef OPENMP
+integer omp_get_num_threads,nomp
+#endif
+
 
 print*,''
 print*,'|^^^^^^^^^^^^^^^^^^^^^^^|'
@@ -42,7 +46,14 @@ call version
 echo=.true.
 grad=.false.
 
-
+#ifdef OPENMP
+print*,''
+!$omp parallel
+nomp=omp_get_num_threads()
+!$omp end parallel 
+print'(a,I4)',' OpenMP threads: ',nomp
+print*,''
+#endif
 
 call eval_options()
 
