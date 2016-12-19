@@ -9,6 +9,7 @@ module moldata
   integer              :: nat    ! # atom
   character(4), allocatable :: aname(:) ! atom name array
   real(8), allocatable :: xyz(:,:) ! cartesian coordinates(3,nat)
+  real(8), allocatable :: g(:,:) ! cartesian gradient(3,nat)
   real(8), allocatable :: dist(:) ! distance between all atoms
   real(8), allocatable :: chrg(:) ! charge array
   real(8), allocatable :: mass(:) ! masses array

@@ -8,7 +8,7 @@ use logic
 use constant, only : au2ang
 use fragment, only: fmol,nfrag
 implicit none
-integer nat,i,n
+integer nat,i,n,j,k,io
 character(120) infile,outfile
 real(8) ep,el,ec,evdw,rab,morse_OH
 type(molecule) :: mol1, mol2
@@ -17,30 +17,15 @@ type(FFdata)   :: FF
 real(8) :: start_time, end_time
 real(8) :: time_nb,time_frag, time_ff
 
+! handle this better!??
+integer, allocatable :: ifrag(:,:)
+
 #ifdef OPENMP
 integer omp_get_num_threads,nomp
 #endif
 
 
-print*,''
-print*,'|^^^^^^^^^^^^^^^^^^^^^^^|'
-print*,'|                       |'
-print*,'|   intermolecular FF   |'
-print*,'|   (fragment based)    |'
-print*,'|                       |'
-print*,'| V: ALPHA              |'
-print*,'| H.Kruse               |'
-print*,'| mail2holger@gmail.com |'
-print*,'|                       |'
-print*,'|-----------------------|'
-print*,''
-
-print*,''
-print*,'usage:'
-print*,'  imff <structure>'
-print*,''
-
-call version
+call print_header()
 
 ! defaults
 echo=.true.
@@ -50,7 +35,7 @@ grad=.false.
 print*,''
 !$omp parallel
 nomp=omp_get_num_threads()
-!$omp end parallel 
+!$omp end parallel
 print'(a,I4)',' OpenMP threads: ',nomp
 print*,''
 #endif
@@ -72,7 +57,7 @@ print*,'structure: ',trim(filevec(1))
   allocate(mol1%cn(nat))
   allocate(mol1%aname(nat))
   allocate(mol1%LJe(nat),mol1%LJrad(nat))
-
+  allocate(mol1%g(3,nat))
   ! call tmolrd(trim(filevec(1)),.false.,mol1%xyz,mol1%iat,nat)
   call read_xyz(filevec(1),nat,mol1%iat,mol1%xyz,mol1%aname)
 print*,''
@@ -132,6 +117,38 @@ call prtime(6,time_FF,  'force field setup')
 call prtime(6,time_nb,  'non-bonded part  ')
 call prtime(6,time_nb+time_FF+time_frag,  'total            ')
 
+
+print*,' running non-bonded engrad ..'
+call cpu_time(start_time)
+call nonbonded_amber_engrad(nfrag,fmol,evdw,ec)
+call cpu_time(end_time)
+time_nb=end_time-start_time
+call prtime(6,time_nb,  'non-bonded engrad  ')
+
+allocate(ifrag(mol1%nat,9999))
+open(newunit=io,file='imff_ifrag',form='unformatted')
+read(io) ifrag
+close(io,status='delete')
+
+! DEBUG DEBUG DEBUG DEBUG DEBUG
+! gradient
+do i=1,nfrag
+ do j=1,fmol(i)%nat
+  do k=1,3
+   mol1%g(k,ifrag(j,i))=fmol(i)%g(k,j)*0.5291770d0 ! in bohrs!
+   enddo
+ enddo
+enddo
+
+open(newunit=io,file='imff_gradient')
+do i=1,mol1%nat
+write(io,'(3E22.13)'), mol1%g(1:3,i)
+enddo
+close(io)
+
+write(*,'(2x,F18.5)') evdw+ec
+! DEBUG DEBUG DEBUG DEBUG DEBUG
+
 end
 
 
@@ -156,4 +173,3 @@ s=t          !secs
 write(io,'(a,": ",x,i3," d",x,i3," h",x,i3," m",f5.1," s")') string,int(d),int(h),int(m),s
 
 end subroutine prtime
-

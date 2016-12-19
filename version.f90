@@ -1,6 +1,6 @@
 subroutine version
  print*,  'Build info:'
- print*,  ' build date    : Thu 15 Dec 15:39:40 CET 2016     '
- print*,  ' git version   : 63ad-dirty'
+ print*,  ' build date    : Mon Dec 19 10:03:44 CET 2016     '
+ print*,  ' git version   : fd93-dirty'
  print*,  ' '          
 end subroutine

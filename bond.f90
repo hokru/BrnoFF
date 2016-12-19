@@ -18,7 +18,7 @@ integer tmp_flen, tmp_nfrag,idx
 logical write_xyz
 logical debug
 
-integer :: ifrag(nat,maxfrag)  !frag info array
+integer :: ifrag(nat,maxfrag)  !frag info array (can become LARGE!)
 integer :: idn,idf  ! frag_atom_index, frag_index, number of fragments
 
 debug=.false.
@@ -130,7 +130,7 @@ enddo atomloop
 
 
 print*,'# fragments found',nfrag
-! print*,flen(1:nfrag)
+! print*,flen(1 :nfrag)
 do i=1,nfrag
 print'(2x,a,I4)','Fragment: ',i
 print'(2x,a,I4)','    size: ',flen(i)
@@ -143,18 +143,21 @@ enddo
 print*,' '
 print*, 'Largest fragment size: ',maxval(flen)
 
-allocate(fxyz(3,maxval(flen),nfrag))
-allocate(fiat(maxval(flen),nfrag))
+!allocate(fxyz(3,maxval(flen),nfrag))
+!allocate(fgrad(3,maxval(flen),nfrag))
+!allocate(fiat(maxval(flen),nfrag))
 
 
 do i=1,nfrag
 allocate(fmol(i)%xyz(3,flen(i)),fmol(i)%iat(flen(i)),fmol(i)%aname(flen(i)))
+allocate(fmol(i)%g(3,flen(i)))
  fmol(i)%nat=flen(i)
+ fmol(i)%g=0d0
  do j=1,flen(i)
-   fxyz(1,j,i)=xyz(1,ifrag(j,i))
-   fxyz(2,j,i)=xyz(2,ifrag(j,i))
-   fxyz(3,j,i)=xyz(3,ifrag(j,i))
-   fiat(j,i)=iat(ifrag(j,i))
+!   fxyz(1,j,i)=xyz(1,ifrag(j,i))
+!   fxyz(2,j,i)=xyz(2,ifrag(j,i))
+!   fxyz(3,j,i)=xyz(3,ifrag(j,i))
+!   fiat(j,i)=iat(ifrag(j,i))
 
    fmol(i)%xyz(1,j)=xyz(1,ifrag(j,i))
    fmol(i)%xyz(2,j)=xyz(2,ifrag(j,i))
@@ -162,10 +165,12 @@ allocate(fmol(i)%xyz(3,flen(i)),fmol(i)%iat(flen(i)),fmol(i)%aname(flen(i)))
    fmol(i)%iat(j)=iat(ifrag(j,i))
    fmol(i)%aname(j)=aname(ifrag(j,i))
  enddo
-write(name,'(I4,a)') i,'_frag.xyz'
-if(write_xyz)call wrxyz(fiat(1,i),flen(i),fxyz(1,1,i),adjustl(trim(name)))
+! write(name,'(I4,a)') i,'_frag.xyz'
+! if(write_xyz)call wrxyz(fiat(1,i),flen(i),fxyz(1,1,i),adjustl(trim(name)))
 enddo
 
-
+open(newunit=io,file='imff_ifrag',form='unformatted')
+write(io) ifrag
+close(io)
 
 end

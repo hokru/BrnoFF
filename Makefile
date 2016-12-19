@@ -11,6 +11,7 @@
  LennardJones.f90\
  bond.f90\
  param.f90\
+ print.f90\
 
 # sources needed pre-processing
  FSOURCES=\
@@ -33,15 +34,15 @@ USE_OMP=yes
 
 OPENBLAS=/usr/qc/openblas_lib/
 
-#  FC = gfortran 
-#  FLAGS= -O3 -ffree-line-length-none -m64 
-#  FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64 
+#  FC = gfortran
+#  FLAGS= -O3 -ffree-line-length-none -m64
+#  FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
 #  LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 
 
 # PGI
- FC=pgfortran -Bstatic 
+ FC=pgfortran -Bstatic
 # FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback
  FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
 
@@ -75,9 +76,9 @@ version:
 
 %.o: %.F90
 	@echo "making $@ from $<"
-	$(FC) $(DFLAGS) $(FLAGS)  -c $< -o $@  
+	$(FC) $(DFLAGS) $(FLAGS)  -c $< -o $@
 
-$(PROG):$(OBJS) 
+$(PROG):$(OBJS)
 	$(FC) $(LINK) $(OBJS) $(LIBS) -o $(PROG)
 
 
@@ -85,5 +86,4 @@ $(PROG):$(OBJS)
 
 
 clean:
-	rm -f *.o *.mod $(PROG) 
-
+	rm -f *.o *.mod $(PROG)
