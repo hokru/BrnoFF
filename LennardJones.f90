@@ -139,3 +139,61 @@ end subroutine
 !  enddo
 ! enddo
 ! end subroutine
+
+
+! coulomb energy + cart. gradient for all atom pairs
+subroutine eg_coulomb(nat,xyz,iat,atype,chrg,ec,g)
+use radii
+use constant, only: au2ang
+implicit none
+integer i,j,k,l,nat,iat,atype(nat),ii,jj
+real(8) ec,dx,dy,dz,qq,chrg(nat)
+real(8) irij,irij2,rij2
+real(8) rab,gvdw(3),tmp2
+real(8) g(3,nat),xyz(3,nat)
+real(8) thr,gnorm
+
+ec=0d0
+g=0d0
+thr=(15d0**2)
+
+! atom-pair loop
+do i=1,nat-1
+ do j=i,nat
+      if(i==j) cycle
+      ii=atype(i)
+      jj=atype(j)
+      dx=xyz(1,i)-xyz(1,j)
+      dy=xyz(2,i)-xyz(2,j)
+      dz=xyz(3,i)-xyz(3,j)
+      rij2=(dx*dx+dy*dy+dz*dz) ! rij^2
+      ! if(rij2>thr) cycle
+      irij2=1d0/rij2           ! 1/rij^2
+      irij=1d0/sqrt(rij2)      ! 1/rij
+      qq=chrg(i)*chrg(j)
+      ! print'(I3,x,I3,2F10.4)',ii,jj,qq,irij
+      ec=ec+qq*irij ! Coulomb
+
+      ! cart. coulomb gradient intermediate
+      tmp2=-1d0*qq*irij2*irij
+      ! local non-bonded pair-gradient
+      gvdw(1)=(tmp2)*dx
+      gvdw(2)=(tmp2)*dy
+      gvdw(3)=(tmp2)*dz
+      ! add to gradient array
+      g(1,i)=g(1,i)+gvdw(1)
+      g(2,i)=g(2,i)+gvdw(2)
+      g(3,i)=g(3,i)+gvdw(3)
+      g(1,j)=g(1,j)-gvdw(1)
+      g(2,j)=g(2,j)-gvdw(2)
+      g(3,j)=g(3,j)-gvdw(3)
+
+      ! hessian
+ enddo
+enddo
+
+! call calc_gnorm(nat,g,gnorm)
+! write(*,'(a,F12.4,a)') 'E(coulomb) :',ec,' [kcal/mol]'
+! write(*,'(a,ES10.3)') 'Gnorm(coulomb) :',gnorm
+
+end subroutine

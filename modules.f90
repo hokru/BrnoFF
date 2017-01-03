@@ -3,7 +3,7 @@ module moldata
  ! holds data for a molecule
  type molecule
   integer, allocatable :: iat(:) ! atom type (H=1, C=6, etc)
-  integer, allocatable :: iff(:) ! FF type type
+  integer, allocatable :: iff(:) ! FF type type integer-index
   integer, allocatable :: bond(:,:) ! bond matrix
   integer, allocatable :: cn(:) ! CNs
   integer              :: nat    ! # atom
@@ -13,13 +13,20 @@ module moldata
   real(8), allocatable :: dist(:) ! distance between all atoms
   real(8), allocatable :: chrg(:) ! charge array
   real(8), allocatable :: mass(:) ! masses array
+
   real(8), allocatable :: LJe(:)  !  LJ well-depth
   real(8), allocatable :: LJrad(:) ! LJ radius
+
+  ! pair arrays 
+  real(8), allocatable :: r0(:)
+  real(8), allocatable :: rk(:)
  end type molecule
 
 end module
 
 module fragment
+
+
 use moldata
 integer, parameter :: maxfrag=9999
 
@@ -44,6 +51,7 @@ integer, parameter :: maxpar = 50
   real(8) :: chrg(maxpar) ! charge array
   real(8) :: LJe(maxpar)  !  LJ well-depth
   real(8) :: LJrad(maxpar) ! LJ radius
+  integer :: itype(maxpar) ! integer atom type (if needed)
  end type
 end module
 
@@ -52,6 +60,7 @@ module logic
 logical echo ! printout
 logical grad ! do gradient
 character(120) filevec(5)
+logical nchess
 end module logic
 
 

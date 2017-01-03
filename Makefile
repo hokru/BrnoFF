@@ -1,5 +1,5 @@
 
- PROG = ~/bin/imff
+ PROG = ~/bin/bff
 
  SOURCES=\
  modules.f90\
@@ -12,6 +12,9 @@
  bond.f90\
  param.f90\
  print.f90\
+ atype.f90\
+ numhess.f90\
+ bonded.f90\
 
 # sources needed pre-processing
  FSOURCES=\
@@ -45,6 +48,7 @@ OPENBLAS=/usr/qc/openblas_lib/
  FC=pgfortran -Bstatic
 # FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback
  FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
+ LIBS= -llapack -lblas
 
 ifeq ($(USE_OMP),yes)
  DFLAGS= -DOPENMP

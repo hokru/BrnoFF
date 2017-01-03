@@ -7,8 +7,10 @@
 subroutine tmolrd(infile,c_nat,xyz,iat,nat)
 use constant, only: au2ang
 implicit none
-real(8), optional,intent(out)    :: xyz(3,nat)
-integer(4),optional, intent(out) :: iat(nat)
+! real(8), optional,intent(out)    :: xyz(3,nat)
+! integer(4),optional, intent(out) :: iat(nat)
+real(8), intent(out)    :: xyz(3,nat)
+integer, intent(out) :: iat(nat)
 character(2) cc,ff
 character(80)  atmp
 character(*) infile
@@ -100,19 +102,19 @@ else ! txyz file
  101  close(33)
       if(echo) write(*,'(5x,'' XYZ file [angst]: '',a)')  trim(infile)
       endif
-
-if(maxval(tifrez,nat).eq.1) then
- if(echo) then
-  write(*,'(a,x,I4,x,a)') '  found ',iff,' frozen cart. coordinates'
-  if(iff.lt.50) then ! dont spam the output to much ...
-   write(*,'(a,$)') '  atom nr: '
-   do i=1,nat
-     if(tifrez(i)==1) write(*,'(x,I2,$)') i
-   enddo
-   print*,''
-  endif
- endif
-endif
+!
+! if(maxval(tifrez,nat).eq.1) then
+!  if(echo) then
+!   write(*,'(a,x,I4,x,a)') '  found ',iff,' frozen cart. coordinates'
+!   if(iff.lt.50) then ! dont spam the output to much ...
+!    write(*,'(a,$)') '  atom nr: '
+!    do i=1,nat
+!      if(tifrez(i)==1) write(*,'(x,I2,$)') i
+!    enddo
+!    print*,''
+!   endif
+!  endif
+! endif
 
 case (.false.)
   write(*,*) ' no input file <',trim(infile) ,'> found !! '
@@ -458,7 +460,7 @@ END
 !* read local xyz        *
 !*************************
 ! ANGSTROM
-subroutine read_xyz(infile,n,ia,nxyz,aname)
+subroutine read_xyz_with_type(infile,n,ia,nxyz,aname)
 implicit none
 integer ierr,n,ia(n),i,io
 real(8) nxyz(3,n)
@@ -481,7 +483,7 @@ do i=1,n
 enddo
 close(io)
 nxyz=nxyz
-end subroutine read_xyz
+end subroutine read_xyz_with_type
 
 
 

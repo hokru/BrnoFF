@@ -51,6 +51,7 @@ print*,''
 end subroutine
 
 
+
 subroutine assign_parm(FF,mol)
 use FFparm
 use moldata
@@ -105,3 +106,70 @@ enddo
 
 
 end subroutine
+
+
+subroutine load_internalFF(FF)
+use FFparm
+implicit none
+integer :: i,io,s,q
+type(FFdata) FF
+
+FF%id='model1'
+FF%npar=25
+
+print*,'type   charge'
+open(newunit=io,file='params')
+do i=1,FF%npar
+ read(io,*) FF%itype(i), FF%chrg(i)
+ print'(I3,x,F10.4)',FF%itype(i), FF%chrg(i)
+enddo
+close(io)
+
+end
+
+subroutine assign_internal(FF,mol)
+use FFparm
+use moldata
+implicit none
+integer i,j,s
+real(8) q
+logical assigned
+type(FFdata) FF
+type(molecule) mol
+
+s=0
+do i=1,mol%nat
+assigned=.false.
+do j=1,FF%npar
+  if(FF%itype(j)==mol%iff(i)) then
+    mol%chrg(i)=FF%chrg(j)
+    assigned=.true.
+    if(FF%itype(j)==1) s=s+1
+  endif
+
+enddo
+if(.not.assigned) stop ' error in param assignment (assign_internal)'
+enddo
+
+print*,''
+print'(a,I6)', ' # H atoms', s
+print*,''
+print*,' initial charge: ', sum(mol%chrg)
+q=(0d0-sum(mol%chrg))/s
+print*, 'H charge correction', q
+
+print*,''
+print*,'index  type  charge'
+do i=1,mol%nat
+  if(mol%iff(i)==1) then
+    mol%chrg(i)=mol%chrg(i)+q
+  endif
+print'(I6,x,I3x,F8.4)',i,mol%iff(i),mol%chrg(i)
+enddo
+
+print*,''
+print*,' final charge: ', sum(mol%chrg)
+print*,''
+
+
+end
