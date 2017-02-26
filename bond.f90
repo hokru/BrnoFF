@@ -53,11 +53,6 @@ do i=1,nat
 enddo
 
 
-! write(6,'(a)') ' Coordination Numbers '
-! write(6,'(a)') '   index   CN'
-! do i=1,nat
-!  write(6,'(2x,I8,x,I3)') i,cn(i)
-! enddo
 
 ! fragments
 exclude=.false.
@@ -103,11 +98,9 @@ if(debug) then
 		  if(bond(i,idx)==1.and..not.assigned) then
 		    if(debug) print*,'               --> bound to atom ',idx
 		     assigned=.true.
-  !                   idn=idn+1
 		     iidn(idf)=iidn(idf)+1
 		     idn=iidn(idf)
 		     flen(idf)=flen(idf)+1
-  !                   print*,'X',idn,flen(idf)
 		     ifrag(idn,idf)=i
 		     exclude(i)=.true.
 		  endif

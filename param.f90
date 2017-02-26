@@ -63,9 +63,6 @@ logical assigned
 character(2) esym
 
 
-
-! print*,'',FF%npar
-
 do i=1,mol%nat
 
 assigned=.false.

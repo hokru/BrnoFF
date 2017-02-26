@@ -22,13 +22,13 @@ do k=1,nfrag-1
   ! loop over all intermolecular atom pairs
   do i=1,fmol(k)%nat
    do j=1,fmol(l)%nat
-  !  print*, k,l,i,j
       r0ij=fmol(k)%LJrad(i)+fmol(l)%LJrad(j)
       eij=sqrt(fmol(k)%LJe(i)*fmol(l)%LJe(j))
 
       dx=fmol(k)%xyz(1,i)-fmol(l)%xyz(1,j)
       dy=fmol(k)%xyz(2,i)-fmol(l)%xyz(2,j)
       dz=fmol(k)%xyz(3,i)-fmol(l)%xyz(3,j)
+
       rij=(dx*dx+dy*dy+dz*dz) ! rij^2
       irij=1d0/sqrt(rij)
       rij6=rij**3                  ! rij^6
@@ -37,7 +37,6 @@ do k=1,nfrag-1
       b=2d0*eij*r0ij6
       evdw=evdw + a/(rij6*rij6) - b/rij6
       ec=ec+(fmol(k)%chrg(i)*fmol(l)%chrg(j))*irij
-!      ec=ec+(fmol(k)%chrg(i)*fmol(l)%chrg(j))/sqrt(rij)
    enddo
   enddo
 enddo

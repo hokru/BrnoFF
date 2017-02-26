@@ -30,34 +30,37 @@ $(info Building: $(GIT_VERSION))
 #------- openmp parallelization --------------
 # set to "yes" if openmp is desired
 # "make clean" is needed after (de)activation!
-
 USE_OMP=yes
-
 #------- openmp parallelization --------------
 
 OPENBLAS=/usr/qc/openblas_lib/
 
-#  FC = gfortran
-#  FLAGS= -O3 -ffree-line-length-none -m64
+
+# ***   GFORTRAN ***
+  FC = gfortran
+  FLAGS= -O -ffree-line-length-none -m64
 #  FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
-#  LIBS= -llapack -lblas
+  LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 
 
-# PGI
- FC=pgfortran -Bstatic
+# ***   PGI       ***
+# FC=pgfortran -Bstatic
 # FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback
- FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
- LIBS= -llapack -lblas
+# FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
+# LIBS= -llapack -lblas
+
 
 ifeq ($(USE_OMP),yes)
  DFLAGS= -DOPENMP
- FLAGS+= -mp
+# FLAGS+= -mp
+ FC+= -fopenmp
 endif
 
 # targets:
 .PHONY: all
 .PHONY: clean
+.PHONY: archive
 
 all: version $(PROG)
 
@@ -86,8 +89,8 @@ $(PROG):$(OBJS)
 	$(FC) $(LINK) $(OBJS) $(LIBS) -o $(PROG)
 
 
-
-
-
 clean:
 	rm -f *.o *.mod $(PROG)
+
+archive:
+	git archive -o archive_$(GIT_VERSION).zip HEAD

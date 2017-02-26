@@ -33,12 +33,12 @@ grad=.false.
 nchess=.false.
 
 #ifdef OPENMP
-print*,''
-!$omp parallel
-nomp=omp_get_num_threads()
-!$omp end parallel
-print'(a,I4)',' OpenMP threads: ',nomp
-print*,''
+    print*,''
+    !$omp parallel
+    nomp=omp_get_num_threads()
+    !$omp end parallel
+    print'(a,I4)',' OpenMP threads: ',nomp
+    print*,''
 #endif
 
 call eval_options()
@@ -156,21 +156,20 @@ endif
 etotal=evdw+ec+ebond
 
 do i=1,mol1%nat
-write(6,'(3E22.13)'), mol1%g(1:3,i)  ! ??
+  write(6,'(3E22.13)'), mol1%g(1:3,i)  ! ??
 enddo
 
 open(newunit=io,file='imff_gradient')
-write(io,'(2x,F20.12)') etotal
-do i=1,mol1%nat
-write(io,'(3E22.13)'), mol1%g(1:3,i)*au2ang
-enddo
+  write(io,'(2x,F20.12)') etotal
+  do i=1,mol1%nat
+    write(io,'(3E22.13)'), mol1%g(1:3,i)*au2ang
+  enddo
 close(io)
 
 write(*,'(2x,F20.12)') etotal
 ! DEBUG DEBUG DEBUG DEBUG DEBUG
 
 end
-
 
 
 
