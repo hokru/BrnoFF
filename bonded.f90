@@ -10,7 +10,7 @@ implicit none
 type(molecule) :: mol
 integer :: i,j,io
 integer :: bond(mol%nat,mol%nat)
-real(8) :: rij,e,r0,rab,rij2,irij
+real(8) :: rij,e,r0,rab,rij2,irij,kb
 real(8) dx,dy,dz,tmp
 
 open(newunit=io,file='bondmat.bin')
@@ -27,12 +27,14 @@ do i=1,mol%nat-1
       rij2=(dx*dx+dy*dy+dz*dz)
       rij=sqrt(rij2)
       irij=1d0/sqrt(rij2)      ! 1/rij
-    ! r0=mol%r0(i,j)
+!     r0=mol%r0(i,j)
+!     kb=mol%kb(i,j)
       r0=1.0
-      e=e+99d0*(rij-r0)**2
+      kb=99d0
+      e=e+kb*(rij-r0)**2
 
       ! gradient, updates mol%g
-      tmp=2d0*99d0*(rij-r0)*irij
+      tmp=2d0*kb*(rij-r0)*irij
       mol%g(1,i)=mol%g(1,i)+tmp*dx
       mol%g(2,i)=mol%g(2,i)+tmp*dy
       mol%g(3,i)=mol%g(3,i)+tmp*dz

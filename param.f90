@@ -62,7 +62,7 @@ type(molecule) mol
 logical assigned
 character(2) esym
 
-
+if(skip_charge) print*,'skipping charge assignment'
 do i=1,mol%nat
 
 assigned=.false.
@@ -81,7 +81,7 @@ assigned=.false.
   print*,'unknown atom:',i, esym(mol%iat(i)),mol%aname(i)
  endif
 
-
+if(skip_charge) cycle
 assigned=.false.
  do j=1,FF%npar
    if( trim(mol%aname(i)) == trim(FF%qname(j)) ) then

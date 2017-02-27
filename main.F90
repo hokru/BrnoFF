@@ -8,7 +8,7 @@ use logic
 use constant, only : au2ang
 use fragment, only: fmol,nfrag
 implicit none
-integer nat,i,n,j,k,io
+integer nat,i,n,j,k,io,ixyz
 character(120) infile,outfile
 real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond
 type(molecule) :: mol1
@@ -28,6 +28,7 @@ integer omp_get_num_threads,nomp
 call print_header()
 
 ! defaults
+ixyz=1
 echo=.true.
 grad=.false.
 nchess=.false.
@@ -81,7 +82,19 @@ if(nchess) then
     write(*,'(a,F12.4,a)') 'E(bond) :',ebond,' [kcal/mol]'
     ! call numhess(mol1)
 else ! FRAGMENT-BASED AMBER-LIKE FF
-    call read_xyz_with_type(filevec(1),nat,mol1%iat,mol1%xyz,mol1%aname)
+    call det_xyz_type(filevec(1),ixyz)
+    select case (ixyz)
+      case(1)
+      case default
+       call error(6,'no enhanced xyz file found')
+      case(2)
+      print*,'Found atom types in xyz file'
+       call read_xyz_with_type(filevec(1),nat,mol1%iat,mol1%xyz,mol1%aname)
+      case(3)
+       skip_charge=.true.
+       print*,'Found atom types and charges in xyz file'
+       call read_xyz_with_type_charge(filevec(1),nat,mol1%iat,mol1%xyz,mol1%aname,mol1%chrg)
+      end select
     print*,''
 
     print*,'Reading parameter file:  <parm.dat>'
@@ -90,7 +103,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
 
     print*,'Determining bonding info and fragments ...'
      call cpu_time(start_time)
-    call bondmat(mol1%nat,mol1%iat,mol1%xyz,mol1%aname,mol1%bond,mol1%cn)
+    call bondmat(mol1%nat,mol1%iat,mol1%xyz,mol1%aname,mol1%bond,mol1%cn,mol1%chrg)
      call cpu_time(end_time)
     time_frag=end_time-start_time
     print*,''
@@ -99,8 +112,9 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
      call cpu_time(start_time)
     do i=1,nfrag
     n=fmol(i)%nat
-    allocate(fmol(i)%LJe(n),fmol(i)%LJrad(n),fmol(i)%chrg(n))
+    
     print*,' Assigning FF parameters fragment ',i
+    ! if we already have the charges we must set the fragment charges now
     call assign_parm(FF,fmol(i))
     enddo
      call cpu_time(end_time)
@@ -155,9 +169,9 @@ endif
 
 etotal=evdw+ec+ebond
 
-do i=1,mol1%nat
-  write(6,'(3E22.13)'), mol1%g(1:3,i)  ! ??
-enddo
+! do i=1,mol1%nat
+!   write(6,'(3E22.13)'), mol1%g(1:3,i)  ! ??
+! enddo
 
 open(newunit=io,file='imff_gradient')
   write(io,'(2x,F20.12)') etotal

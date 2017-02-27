@@ -21,7 +21,7 @@ module moldata
   real(8), allocatable :: r0(:)
   real(8), allocatable :: rk(:)
  end type molecule
-
+logical :: skip_charge
 end module
 
 module fragment
@@ -41,7 +41,6 @@ end module
 
 
 module FFparm
-
 integer, parameter :: maxpar = 50
  type FFdata
   integer        :: npar ! # parameters

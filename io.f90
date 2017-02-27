@@ -478,7 +478,6 @@ read(io,'(a)') aa !dummy
 read(io,'(a)') aa !dummy
 do i=1,n
  read(io,*) el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i)
-!  print*, el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i)
  call elem(el,ia(i))
 enddo
 close(io)
@@ -486,6 +485,57 @@ nxyz=nxyz
 end subroutine read_xyz_with_type
 
 
+subroutine read_xyz_with_type_charge(infile,n,ia,nxyz,aname,charge)
+implicit none
+integer ierr,n,ia(n),i,io
+real(8) nxyz(3,n),charge(n)
+character(*) infile
+character(120) aa
+character(2) el
+character(4) aname(n)
+real(8) f
+logical fstr
+
+
+open(newunit=io,file=infile,iostat=ierr,status='old')
+if(ierr.ne.0) call error(6,'error reading '//trim(infile))
+read(io,'(a)') aa !dummy
+read(io,'(a)') aa !dummy
+do i=1,n
+ read(io,*) el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i),charge(i)
+ print*, el, nxyz(1,i),nxyz(2,i),nxyz(3,i),aname(i),charge(i)
+ call elem(el,ia(i))
+enddo
+close(io)
+nxyz=nxyz
+end subroutine read_xyz_with_type_charge
+
+
+subroutine det_xyz_type(infile,ixyz)
+implicit none
+character(*) :: infile
+character(120) aa
+integer      :: ixyz,io,ierr,n
+
+open(newunit=io,file=infile,iostat=ierr,status='old')
+if(ierr.ne.0) call error(6,'error reading '//trim(infile))
+read(io,'(a)') aa !dummy
+read(io,'(a)') aa !dummy
+read(io,'(a)') aa 
+call cstring(aa,n)
+print*, 'Found ',n, 'chars'
+select case(n)
+ case(4)
+  ixyz=1 ! just xyz
+ case(5)
+  ixyz=2 ! xyz+atype
+ case(6)
+  ixyz=3 ! xyz+atype+chrg
+ case default
+  call error(6,'I dont recognized the xyz file type. Aborting.')
+ end select
+close(io)
+end subroutine
 
 subroutine error(io,aa)
 implicit none

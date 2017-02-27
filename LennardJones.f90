@@ -88,6 +88,7 @@ do k=1,nfrag-1
       b=2d0*eij*r0ij6          ! B
       evdw=evdw + a/(rij6*rij6) - b/rij6 ! LJ
       qq=(fmol(k)%chrg(i)*fmol(l)%chrg(j))
+      ! print*,fmol(k)%chrg(i),fmol(l)%chrg(j),fmol(k)%iat(i),fmol(k)%iat(i)
       ec=ec+qq*irij ! Coulomb
 
       ! cart. vdw gradient intermediate

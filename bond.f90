@@ -1,5 +1,5 @@
 ! determine bond matrix, coordination numbers and fragments
-subroutine bondmat(nat,iat,xyz,aname,bond,cn)
+subroutine bondmat(nat,iat,xyz,aname,bond,cn,charge)
 use radii
 use moldata
 use fragment
@@ -8,7 +8,7 @@ implicit none
 integer nat,iat(nat),i,j,l,k
 integer bond(nat,nat),cn(nat),atype(nat),cm(nat,nat),io
 real(8) r1,r2,rab
-real(8) xyz(3,nat)
+real(8) xyz(3,nat),charge(nat)
 character(2) esym
 character(120) fmt,name
 character(4) aname(nat)
@@ -144,9 +144,14 @@ print*, 'Largest fragment size: ',maxval(flen)
 do i=1,nfrag
 allocate(fmol(i)%xyz(3,flen(i)),fmol(i)%iat(flen(i)),fmol(i)%aname(flen(i)))
 allocate(fmol(i)%g(3,flen(i)))
+allocate(fmol(i)%LJe(flen(i)),fmol(i)%LJrad(flen(i)),fmol(i)%chrg(flen(i)))
  fmol(i)%nat=flen(i)
  fmol(i)%g=0d0
  do j=1,flen(i)
+  ! use pre-assigned charges
+  if(skip_charge) then
+   fmol(i)%chrg(j)=charge(ifrag(j,i))
+  endif
 !   fxyz(1,j,i)=xyz(1,ifrag(j,i))
 !   fxyz(2,j,i)=xyz(2,ifrag(j,i))
 !   fxyz(3,j,i)=xyz(3,ifrag(j,i))

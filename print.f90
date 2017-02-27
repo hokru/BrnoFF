@@ -16,7 +16,7 @@ print*,' H.Kruse               '
 print*,' mail2holger@gmail.com '
 print*,''
 print*,'usage:'
-print*,'  imff <structure>'
+print*,'  bff <structure>'
 print*,''
 
 call version
