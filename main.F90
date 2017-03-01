@@ -141,13 +141,13 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     call prtime(6,time_nb+time_FF+time_frag,  'total            ')
 
 
-    print*,' running non-bonded engrad ..'
-    call cpu_time(start_time)
-    call nonbonded_amber_engrad(nfrag,fmol,evdw,ec)
-    call cpu_time(end_time)
-    time_nb=end_time-start_time
-    call prtime(6,time_nb,  'non-bonded engrad  ')
-
+!    print*,' running non-bonded engrad ..'
+!    call cpu_time(start_time)
+!    call nonbonded_amber_engrad(nfrag,fmol,evdw,ec)
+!    call cpu_time(end_time)
+!    time_nb=end_time-start_time
+!    call prtime(6,time_nb,  'non-bonded engrad  ')
+!
     allocate(ifrag(mol1%nat,9999))
     open(newunit=io,file='imff_ifrag',form='unformatted')
     read(io) ifrag
@@ -156,31 +156,31 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
 
     ! DEBUG DEBUG DEBUG DEBUG DEBUG
     ! gradient
-    do i=1,nfrag
-     do j=1,fmol(i)%nat
-      do k=1,3
-       mol1%g(k,ifrag(j,i))=fmol(i)%g(k,j)*au2ang ! in bohrs!
-       enddo
-     enddo
-    enddo
+!    do i=1,nfrag
+!     do j=1,fmol(i)%nat
+!      do k=1,3
+!       mol1%g(k,ifrag(j,i))=fmol(i)%g(k,j)*au2ang ! in bohrs!
+!       enddo
+!     enddo
+!    enddo
 
 
 endif
 
-etotal=evdw+ec+ebond
+!etotal=evdw+ec+ebond
 
 ! do i=1,mol1%nat
 !   write(6,'(3E22.13)'), mol1%g(1:3,i)  ! ??
 ! enddo
 
-open(newunit=io,file='imff_gradient')
-  write(io,'(2x,F20.12)') etotal
-  do i=1,mol1%nat
-    write(io,'(3E22.13)'), mol1%g(1:3,i)*au2ang
-  enddo
-close(io)
+!open(newunit=io,file='imff_gradient')
+!  write(io,'(2x,F20.12)') etotal
+!  do i=1,mol1%nat
+!    write(io,'(3E22.13)'), mol1%g(1:3,i)*au2ang
+!  enddo
+!close(io)
 
-write(*,'(2x,F20.12)') etotal
+!write(*,'(2x,F20.12)') etotal
 ! DEBUG DEBUG DEBUG DEBUG DEBUG
 
 end

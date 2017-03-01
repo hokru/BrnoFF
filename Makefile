@@ -30,16 +30,16 @@ $(info Building: $(GIT_VERSION))
 #------- openmp parallelization --------------
 # set to "yes" if openmp is desired
 # "make clean" is needed after (de)activation!
-USE_OMP=yes
+USE_OMP=no
 #------- openmp parallelization --------------
 
 OPENBLAS=/usr/qc/openblas_lib/
 
 
 # ***   GFORTRAN ***
-  FC = gfortran
+  FC = gfortran -static
   FLAGS= -O -ffree-line-length-none -m64
-#  FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
+# FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
   LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 

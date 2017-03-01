@@ -523,7 +523,6 @@ read(io,'(a)') aa !dummy
 read(io,'(a)') aa !dummy
 read(io,'(a)') aa 
 call cstring(aa,n)
-print*, 'Found ',n, 'chars'
 select case(n)
  case(4)
   ixyz=1 ! just xyz

@@ -50,6 +50,7 @@ character*80, intent(out) :: w(n)
 character*80   a,aa
 
 aa=adjustl(s)
+call rmtab(aa,aa)
 do i=1,n
   a=aa
   k=index(a,' ')
@@ -73,6 +74,7 @@ character*80   w(20)
 character*80   a,aa
 
 aa=adjustl(s)
+call rmtab(aa,aa)
 i=0
 do while (index(aa,' ').ne.1)
   i=i+1
@@ -96,16 +98,16 @@ subroutine cstring(s,n)
 implicit none
 integer i,n,k,x
 character(*), intent(in) :: s
-character*80   a,aa
+character(255) a,aa
 aa=adjustl(s)
+call rmtab(aa,aa)
 i=0
 do while (index(aa,' ').ne.1)
   i=i+1
   a=aa
   k=index(a,' ')
-!  w(i)=trim(a(:(k-1)))
   aa=adjustl(trim(a((k+1):)))
-!  print*,'AA',trim(aa),index(aa,' ')
+!  print*,'AA: ',trim(aa),k
   if(i.gt.50) stop '!* string split error: subroutine charXsplit *!'
 enddo
 n=i
@@ -260,6 +262,29 @@ enddo
 !write(*,'(a)') sout(1:c)
 len=c
 end 
+
+
+
+subroutine rmtab(aa,sout)
+! tab -> space
+implicit none
+character(*) aa
+character(len(aa)) sout
+character(1) a
+integer i,ic,sl,c,len
+
+c=0
+sl=len_trim(adjustr(aa))
+do i=1,sl
+  a=aa(i:i)
+  ic=iachar(a)
+  if(iachar(a)==9) then
+   sout(i:i)=' '
+  else
+   sout(i:i)=a
+  endif
+enddo
+end
 
 
 ! return true if characters 'c' are found in input string 'str'
