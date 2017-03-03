@@ -30,7 +30,7 @@ open(newunit=io,file='bondmat.bin')
 close(io)
 
 
-call prmati(6,bond,nat,nat,'bond matrix')
+call printimat(6,nat,nat,bond,'bond matrix')
 
 ! coordination number (integer)
 cn=0

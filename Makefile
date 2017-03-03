@@ -15,6 +15,7 @@
  atype.f90\
  numhess.f90\
  bonded.f90\
+ printmat.f90\
 
 # sources needed pre-processing
  FSOURCES=\

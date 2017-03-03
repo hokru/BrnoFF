@@ -7,7 +7,7 @@ character(120) aa
 integer io,i
 logical, external :: fstr
 type(FFdata) FF
-real(8), parameter :: amber2kcal=18.2223d0
+! real(8), parameter :: amber2kcal=18.2223d0
 
 FF%chrg=0d0
 FF%LJe=0d0
@@ -35,7 +35,7 @@ endif
    print*,'reading charges '
      do i=1,FF%npar
        read(io,*,end=100) FF%qname(i),FF%chrg(i)
-       FF%chrg(i)=FF%chrg(i)*amber2kcal
+       FF%chrg(i)=FF%chrg(i)
      enddo
  endif
 enddo
@@ -49,7 +49,6 @@ print*,'FF parameters:',FF%npar
 print*,''
 
 end subroutine
-
 
 
 subroutine assign_parm(FF,mol)
@@ -101,6 +100,28 @@ enddo
 
 
 
+end subroutine
+
+subroutine print_info_FFnb(mol)
+use moldata
+type(molecule), intent(in):: mol
+character(2) esym
+real(8) s,d
+
+print*, 'non-bonded parameter info'
+write(*,'(2x,a6,1x,a2,1x,a4,1x,a10,1x,a10,1x,a10)') 'index','el','type','charge','LJe','LJrad'
+       !xxFFFFFFxAAxAAAAxFFFFFFFFFFxFFFFFFFFFFxFFFFFFFFFF
+do i=1,mol%nat
+ write(*,'(2x,I6,1x,a2,1x,a4,1x,F10.4,1x,F10.4,1x,F10.4)') &
+    i,esym(mol%iat(i)),mol%aname(i),mol%chrg(i),mol%LJe(i),mol%LJrad(i)
+enddo
+
+s=sum(mol%chrg)
+write(*,'(2x,a,2x,F10.4)') 'molecular charge: ',s
+! d=abs(int(s))-abs(s)
+! if(abs(d)>epsilon(1d0)) then
+! write(*,'(2x,a,ES10.3,2x,ES10.3)') 'deviation from integer value: ', d
+! endif
 
 end subroutine
 

@@ -116,4 +116,10 @@ real(8), parameter:: pi = 3.141592653589793d0
 real(8), parameter:: au2ang = 0.5291770d0
 real(8), parameter:: amu2au=1.66053886E-27/9.10938215E-31
 real(8), parameter:: au2cm =219474.63067d0
+real(8), parameter :: AmberElec=18.2223d0 ! 
 end module
+
+! If you measure charge in units of the electron charge, and distance in Angstroms (as is done in amber), then an electrostatic energy looks like:
+!     E (kcal/mol) =  332 * q1*q2/r
+! where q1 and q2 are charges and r is a distance. The square root of 332 is 18.2; hence, to save the multiplication by 332 all of the time, the charges are modified by 18.2, so that
+!      E (kcal/mol) =  (18.2*q1) * (18.2*q2) / r

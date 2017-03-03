@@ -37,7 +37,7 @@ do i=1,nat
 enddo
 
 if(nat < 100) then
- call prmati(6,bond,nat,nat,'bond matrix')
+ call printimat(6,nat,nat,bond,'bond matrix')
 else
  print*,'print of bondmatrix omitted'
 endif
@@ -118,7 +118,7 @@ if(debug) then
   ifrag(idn,nfrag)=i
   endif
 
-  if(debug) call prmati(6,ifrag,6,2,'ifrag')
+  if(debug) call printimat(6,6,2,ifrag,'ifrag')
 enddo atomloop
 
 

@@ -5,7 +5,7 @@ program iff
 use moldata
 use FFparm
 use logic
-use constant, only : au2ang
+use constant, only : au2ang,amberelec
 use fragment, only: fmol,nfrag
 implicit none
 integer nat,i,n,j,k,io,ixyz
@@ -112,10 +112,14 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
      call cpu_time(start_time)
     do i=1,nfrag
     n=fmol(i)%nat
-    
     print*,' Assigning FF parameters fragment ',i
     ! if we already have the charges we must set the fragment charges now
     call assign_parm(FF,fmol(i))
+    print*,''
+    call print_info_FFnb(fmol(i))
+    ! need to scale the charge for units used in amber
+    ! (units of the electron charge and kcal)
+    fmol(i)%chrg=fmol(i)%chrg*AmberElec
     enddo
      call cpu_time(end_time)
     time_FF=end_time-start_time
