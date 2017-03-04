@@ -10,7 +10,7 @@ use fragment, only: fmol,nfrag
 implicit none
 integer nat,i,n,j,k,io,ixyz
 character(120) infile,outfile
-real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond
+real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond,s
 type(molecule) :: mol1
 type(FFdata)   :: FF
 
@@ -32,6 +32,7 @@ ixyz=1
 echo=.true.
 grad=.false.
 nchess=.false.
+s=0.0d0
 
 #ifdef OPENMP
     print*,''
@@ -115,16 +116,16 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     print*,' Assigning FF parameters fragment ',i
     ! if we already have the charges we must set the fragment charges now
     call assign_parm(FF,fmol(i))
-    print*,''
     call print_info_FFnb(fmol(i))
+    print*,''
     ! need to scale the charge for units used in amber
     ! (units of the electron charge and kcal)
+    s=s+sum(fmol(i)%chrg)
     fmol(i)%chrg=fmol(i)%chrg*AmberElec
     enddo
+    write(*,'(2x,a,F10.4)') 'global charge= ',s
      call cpu_time(end_time)
     time_FF=end_time-start_time
-    print*,''
-
     print*,' running non-bonded part..'
     call cpu_time(start_time)
     call nonbonded_amber(nfrag,fmol,evdw,ec)

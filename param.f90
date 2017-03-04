@@ -67,7 +67,7 @@ do i=1,mol%nat
 assigned=.false.
  do j=1,FF%npar
    if( adjustl(trim(mol%aname(i))) == adjustl(trim(FF%aname(j))) ) then
-   print*,'Assigning.. vdw ',trim(mol%aname(i)),i,esym(mol%iat(i))
+!   print*,'Assigning.. vdw ',trim(mol%aname(i)),i,esym(mol%iat(i))
    assigned=.true.
    mol%LJe(i)=FF%LJe(j)
    mol%LJrad(i)=FF%LJrad(j)
@@ -84,7 +84,7 @@ if(skip_charge) cycle
 assigned=.false.
  do j=1,FF%npar
    if( trim(mol%aname(i)) == trim(FF%qname(j)) ) then
-    print*,'Assigning..chrg ',trim(mol%aname(i)),i,esym(mol%iat(i))
+!    print*,'Assigning..chrg ',trim(mol%aname(i)),i,esym(mol%iat(i))
    assigned=.true.
    mol%chrg(i)=FF%chrg(j)
    exit
