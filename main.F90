@@ -5,7 +5,7 @@ program iff
 use moldata
 use FFparm
 use logic
-use constant, only : au2ang,amberelec
+use constant, only : au2ang,amberelec,au2kcal
 use fragment, only: fmol,nfrag
 implicit none
 integer nat,i,n,j,k,io,ixyz
@@ -16,6 +16,7 @@ type(FFdata)   :: FF
 character(2) :: esym
 real(8) :: start_time, end_time
 real(8) :: time_nb,time_frag, time_ff
+
 
 ! handle this better!??
 integer, allocatable :: ifrag(:,:)
@@ -170,6 +171,19 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     enddo
 
 
+! do i=1,mol1%nat
+!  do j=1,3
+!  write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', mol1%nat,']'
+!  do j=1,3
+!    nxyz(j,i)=nxyz(j,i)+step
+!    call nonbonded_amber(nfrag,fmol,evdw,ec)
+!    nxyz(j,i)=nxyz(j,i)-2_r8*step
+!    call nonbonded_amber(nfrag,fmol,evdw,ec)
+!    nxyz(j,i)=nxyz(j,i)+step
+!    g(j,i)=(er-el)/(step*2_r8)
+!  enddo
+! enddo
+
 endif
 
 etotal=evdw+ec
@@ -178,13 +192,22 @@ etotal=evdw+ec
 !   write(6,'(3E22.13)'), mol1%g(1:3,i)  
 ! enddo
 
+
+! kcal/mol / A
 open(newunit=io,file='bff_gradient')
   write(io,'(2x,F20.12)') etotal
   do i=1,mol1%nat
-    write(io,'(3E22.13)'), mol1%g(1:3,i)*au2ang
+    write(io,'(3E22.13)'), mol1%g(1:3,i)
   enddo
 close(io)
 
+! hartree / bohr
+open(newunit=io,file='bff_gradient_au')
+  write(io,'(2x,F20.12)') etotal/au2kcal
+  do i=1,mol1%nat
+    write(io,'(3E22.13)'), mol1%g(1:3,i)/(au2kcal/au2ang)
+  enddo
+close(io)
 
 print*,'writing bff.exyz'
 open(newunit=io,file='bff.exyz')

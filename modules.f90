@@ -117,6 +117,7 @@ real(8), parameter:: au2ang = 0.5291770d0
 real(8), parameter:: amu2au=1.66053886E-27/9.10938215E-31
 real(8), parameter:: au2cm =219474.63067d0
 real(8), parameter :: AmberElec=18.2223d0 ! 
+real(8), parameter:: au2kcal = 627.5095d0
 end module
 
 ! If you measure charge in units of the electron charge, and distance in Angstroms (as is done in amber), then an electrostatic energy looks like:
