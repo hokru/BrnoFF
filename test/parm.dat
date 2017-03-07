@@ -23,6 +23,9 @@
   OS          1.6837  0.1700             OPLS ether
   OP          1.8500  0.1700             Steinbrecher/Latzer for 2- phosphate
   C*          1.9080  0.0860             Spellmeyer
+  CK          1.9080  0.0860             Spellmeyer
+  CA          1.9080  0.0860             Spellmeyer
+  CB          1.9080  0.0860             Spellmeyer
   CM          1.9080  0.0860             Spellmeyer ALIAS C*
   CI          1.9080  0.1094             parmbsc0
   C5          1.9080  0.0860             Spellmeyer
@@ -31,6 +34,9 @@
   CX          1.9080  0.1094             Spellmeyer  (was CT)
   C           1.9080  0.0860             OPLS
   N           1.8240  0.1700             OPLS
+  N2           1.8240  0.1700             OPLS
+  NC           1.8240  0.1700             OPLS
+  NB           1.8240  0.1700             OPLS
   NA          1.8240  0.1700             OPLS ALIAS N
   N*          1.8240  0.1700             OPLS ALIAS N
   N3          1.8240  0.1700             OPLS

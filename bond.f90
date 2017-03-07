@@ -83,10 +83,10 @@ exclude(1)=.true.
 
 atomloop: do i=1,nat
 
-if(debug) then
+ if(debug) then
   print*,' ATOM: ', i
   print*,'   flen',flen(1:nfrag)
-  endif
+ endif
 
   ! atom bound to a previous fragment?
   assigned=.false.
@@ -167,7 +167,7 @@ allocate(fmol(i)%LJe(flen(i)),fmol(i)%LJrad(flen(i)),fmol(i)%chrg(flen(i)))
 ! if(write_xyz)call wrxyz(fiat(1,i),flen(i),fxyz(1,1,i),adjustl(trim(name)))
 enddo
 
-open(newunit=io,file='imff_ifrag',form='unformatted')
+open(newunit=io,file='bff_ifrag',form='unformatted')
 write(io) ifrag
 close(io)
 
