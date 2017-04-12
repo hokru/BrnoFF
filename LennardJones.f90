@@ -143,7 +143,7 @@ end subroutine
 
 ! coulomb energy + cart. gradient for all atom pairs
 subroutine eg_coulomb(nat,xyz,iat,atype,chrg,ec,g)
-use radii
+use atomdata, only: rcov
 use constant, only: au2ang
 implicit none
 integer i,j,k,l,nat,iat,atype(nat),ii,jj

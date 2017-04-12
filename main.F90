@@ -201,8 +201,9 @@ open(newunit=io,file='bff_gradient')
   enddo
 close(io)
 
-! hartree / bohr
+! kcal/mol / bohr
 open(newunit=io,file='bff_gradient_au')
+!  write(io,'(2x,F20.12)') etotal/au2kcal
   write(io,'(2x,F20.12)') etotal/au2kcal
   do i=1,mol1%nat
     write(io,'(3E22.13)'), mol1%g(1:3,i)/(au2kcal/au2ang)

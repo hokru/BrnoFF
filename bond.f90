@@ -1,6 +1,6 @@
 ! determine bond matrix, coordination numbers and fragments
 subroutine bondmat(nat,iat,xyz,aname,bond,cn,charge)
-use radii
+use atomdata, only: rcov
 use moldata
 use fragment
 implicit none

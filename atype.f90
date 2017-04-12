@@ -1,6 +1,6 @@
 ! determine atom type from bond matrix and CN
 subroutine get_atype(nat,iat,xyz,atype)
-use radii, only: rcov
+use atomdata, only: rcov
 implicit none
 integer nat,iat(nat),atype(nat),i,j
 real(8) xyz(3,nat)

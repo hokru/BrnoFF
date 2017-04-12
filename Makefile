@@ -16,6 +16,7 @@
  numhess.f90\
  bonded.f90\
  printmat.f90\
+rigid.f90\
 
 # sources needed pre-processing
  FSOURCES=\
@@ -37,11 +38,19 @@ USE_OMP=no
 OPENBLAS=/usr/qc/openblas_lib/
 
 
-# ***   GFORTRAN ***
-  FC = gfortran -static
-  FLAGS= -O -ffree-line-length-none -m64
+# ***   INTEL  ***
+  FC = ifort -static -mkl
+  FLAGS= -O3 -m64 -qopt-report=5
+#  FLAGS= -O -m64 -qopt-report=5
 # FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
-  LIBS= -llapack -lblas
+
+
+
+# ***   GFORTRAN ***
+#  FC = gfortran -static
+#  FLAGS= -O -ffree-line-length-none -m64
+# FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
+#  LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 
 
