@@ -82,7 +82,7 @@ if(nchess) then
     write(*,'(a,ES10.3)') 'Gnorm(coulomb) :',gnorm
     call cov_bond_harm(mol1,ebond)
     write(*,'(a,F12.4,a)') 'E(bond) :',ebond,' [kcal/mol]'
-    ! call numhess(mol1)
+    call numhess(mol1)
 else ! FRAGMENT-BASED AMBER-LIKE FF
     call det_xyz_type(filevec(1),ixyz)
     select case (ixyz)
