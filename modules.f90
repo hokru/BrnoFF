@@ -25,8 +25,6 @@ logical :: skip_charge
 end module
 
 module fragment
-
-
 use moldata
 integer, parameter :: maxfrag=9999
 
