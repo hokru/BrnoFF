@@ -118,6 +118,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     ! if we already have the charges we must set the fragment charges now
     call assign_parm(FF,fmol(i))
     call print_info_FFnb(fmol(i))
+    call print_info_FFb(fmol(i))
     print*,''
     ! need to scale the charge for units used in amber
     ! (units of the electron charge and kcal)

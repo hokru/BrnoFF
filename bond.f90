@@ -130,6 +130,15 @@ print'(2x,a,I4)','    size: ',flen(i)
 print'(2x,a)','    atoms: '
 write(fmt,'("(3x",I5,x,"I5)")') flen(i)
 write(*,fmt) ifrag(1:flen(i),i)
+! 
+do k=1,flen(i)
+do j=1,flen(i)
+    if (bond(ifrag(j,i),ifrag(k,i))==1) then
+       fmol(i)%nbonds = fmol(i)%nbonds+1  !need to get num of bonds in each frag to allocate space for them
+    endif
+enddo
+enddo
+!
 enddo
 
 ! assign fragment coordinates and fmol
@@ -142,11 +151,13 @@ print*, 'Largest fragment size: ',maxval(flen)
 
 
 do i=1,nfrag
-allocate(fmol(i)%xyz(3,flen(i)),fmol(i)%iat(flen(i)),fmol(i)%aname(flen(i)))
+allocate(fmol(i)%xyz(3,flen(i)),fmol(i)%iat(flen(i)),fmol(i)%aname(flen(i)),fmol(i)%bond(flen(i),flen(i)))
 allocate(fmol(i)%g(3,flen(i)))
 allocate(fmol(i)%LJe(flen(i)),fmol(i)%LJrad(flen(i)),fmol(i)%chrg(flen(i)))
+allocate(fmol(i)%r0(fmol(i)%nbonds),fmol(i)%rk(fmol(i)%nbonds))
  fmol(i)%nat=flen(i)
  fmol(i)%g=0d0
+ fmol(i)%nbonds = 0 !my
  do j=1,flen(i)
   ! use pre-assigned charges
   if(skip_charge) then
@@ -162,7 +173,14 @@ allocate(fmol(i)%LJe(flen(i)),fmol(i)%LJrad(flen(i)),fmol(i)%chrg(flen(i)))
    fmol(i)%xyz(3,j)=xyz(3,ifrag(j,i))
    fmol(i)%iat(j)=iat(ifrag(j,i))
    fmol(i)%aname(j)=aname(ifrag(j,i))
+
+   ! my:
+   do k=1,flen(i)
+    fmol(i)%bond(j,k)=bond(ifrag(j,i),ifrag(k,i)) ! fill bond matrix for fragment
+   enddo
+  !
  enddo
+
 ! write(name,'(I4,a)') i,'_frag.xyz'
 ! if(write_xyz)call wrxyz(fiat(1,i),flen(i),fxyz(1,1,i),adjustl(trim(name)))
 enddo

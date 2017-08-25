@@ -20,9 +20,11 @@ module moldata
   ! pair arrays 
   real(8), allocatable :: r0(:)
   real(8), allocatable :: rk(:)
+  integer :: nbonds ! number of bonds
  end type molecule
 logical :: skip_charge
 end module
+
 
 module fragment
 use moldata
@@ -39,7 +41,7 @@ end module
 
 
 module FFparm
-integer, parameter :: maxpar = 50
+integer, parameter :: maxpar = 50, maxpar2 = maxpar**2
  type FFdata
   integer        :: npar ! # parameters
   character(120) :: id   ! FF name
@@ -49,6 +51,10 @@ integer, parameter :: maxpar = 50
   real(8) :: LJe(maxpar)  !  LJ well-depth
   real(8) :: LJrad(maxpar) ! LJ radius
   integer :: itype(maxpar) ! integer atom type (if needed)
+  integer :: nbondpar   ! number of bond parameters
+  character(8) :: bond_name(maxpar2) ! atom pair name array for bonds
+  real(8) :: r0(maxpar2) ! r0 for bonds
+  real(8) :: rk(maxpar2) ! force constants for bonds
  end type
 end module
 

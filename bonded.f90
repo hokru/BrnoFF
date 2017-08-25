@@ -28,7 +28,7 @@ do i=1,mol%nat-1
 !     kb=mol%kb(i,j)
       r0=1.0
       kb=99d0
-      e=e+kb(atype(i),j)*(rij-r0)**2
+      e=e+kb*(rij-r0)**2
 
       ! gradient, updates mol%g
       tmp=2d0*kb*(rij-r0)*irij

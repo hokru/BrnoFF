@@ -60,7 +60,22 @@ enddo
 return
 end subroutine
 
-
+! pav
+!*********************************************************************
+!* split a string into 2 either side of a single-char delimiter token*
+!*********************************************************************
+!taken from git ponderomotion/3833266, adjusted
+subroutine split_string(instring, string1, string2, delim)
+    CHARACTER(5) :: instring
+    CHARACTER(1) :: delim
+    CHARACTER(2),INTENT(OUT):: string1,string2
+    INTEGER :: index
+    instring = TRIM(instring)
+    index = SCAN(instring,delim)
+    string1 = instring(1:index-1)
+    string2 = instring(index+1:)
+end subroutine split_string
+!
 
 !***************************************************
 !* split a string s iand the return the x'ths word *
