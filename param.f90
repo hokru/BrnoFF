@@ -4,7 +4,7 @@ use FFparm
 implicit none
 character(*) pfile
 character(120) aa
-integer io,i
+integer io,i,len
 logical, external :: fstr
 type(FFdata) FF
 !integer, dimension(1:2) :: bondM_dim !my. dimensions of a bond matrix of a molecule
@@ -48,6 +48,7 @@ do
    print*,'reading bond parameters '
     do i=1,FF%npar**2
       read(io,*,end=100) FF%bond_name(i), FF%rk(i), FF%r0(i) !this supposes that there are NO spaces in definition of bond name, i.e C-C iv valid but C -C as in amber parm.dat will raise error!
+      call rmspace(FF%bond_name(i),FF%bond_name(i),len) ! should fix spaces?
       FF%nbondpar = FF%nbondpar + 1
     enddo
   endif
@@ -114,8 +115,7 @@ assigned=.false.
   print*,'unknown atom:',i, esym(mol%iat(i)),mol%aname(i)
  endif
 
- ! my: bond assignement - r0 and rk:
- !allready looping i over all atoms
+ ! bond assignement - r0 and rk:
  l=1
  do while (l < i) ! loop over all atom pairs in bond matrix but not diagonal and each pair only once
   assigned=.false.
@@ -139,7 +139,6 @@ assigned=.false.
   endif
   l=l+1
  enddo
- !
 
 enddo
 end subroutine

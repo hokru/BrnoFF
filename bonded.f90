@@ -24,10 +24,10 @@ do i=1,mol%nat-1
       rij2=(dx*dx+dy*dy+dz*dz)
       rij=sqrt(rij2)
       irij=1d0/sqrt(rij2)      ! 1/rij
-!     r0=mol%r0(i,j)
-!     kb=mol%kb(i,j)
-      r0=1.0
-      kb=99d0
+!      r0=mol%r0(i,j)
+!      kb=mol%rk(i,j)
+      r0=99
+      kb=1
       e=e+kb*(rij-r0)**2
 
       ! gradient, updates mol%g

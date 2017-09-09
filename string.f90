@@ -60,7 +60,6 @@ enddo
 return
 end subroutine
 
-! pav
 !*********************************************************************
 !* split a string into 2 either side of a single-char delimiter token*
 !*********************************************************************
@@ -75,7 +74,6 @@ subroutine split_string(instring, string1, string2, delim)
     string1 = instring(1:index-1)
     string2 = instring(index+1:)
 end subroutine split_string
-!
 
 !***************************************************
 !* split a string s iand the return the x'ths word *
@@ -256,7 +254,7 @@ end subroutine
 subroutine rmspace(aa,sout,len)
 implicit none
 character(*) aa
-character(120) xx,sout
+character(255) xx,sout
 character(1) a
 integer i,ic,sl,c,len
 
