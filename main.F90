@@ -124,6 +124,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     ! (units of the electron charge and kcal)
     s=s+sum(fmol(i)%chrg)
     fmol(i)%chrg=fmol(i)%chrg*AmberElec
+    call cov_bond_harm(fmol(i),ebond)
     enddo
     write(*,'(2x,a,F10.4)') 'global charge= ',s
      call cpu_time(end_time)

@@ -5,7 +5,7 @@ use moldata
 use fragment
 implicit none
 
-integer nat,iat(nat),i,j,l,k
+integer nat,iat(nat),i,j,l,k,c
 integer bond(nat,nat),cn(nat),atype(nat),cm(nat,nat),io
 real(8) r1,r2,rab
 real(8) xyz(3,nat),charge(nat)
@@ -26,6 +26,7 @@ debug=.false.
 write_xyz=.false.
 
 ! full symmetric bond matrix
+! somewhat expensive
 bond=0
 do i=1,nat
  do j=1,nat
@@ -35,6 +36,7 @@ do i=1,nat
    if(abs(r1-r2) < 0.5) bond(i,j)=1
  enddo
 enddo
+
 
 if(nat < 100) then
  call printimat(6,nat,nat,bond,'bond matrix')
@@ -80,7 +82,7 @@ nfrag=0
 ! assignt fragments
 exclude(1)=.true.
 
-
+! becomes expensive for many fragments (solvents!)
 atomloop: do i=1,nat
 
  if(debug) then
@@ -125,20 +127,25 @@ enddo atomloop
 print*,'# fragments found',nfrag
 ! print*,flen(1 :nfrag)
 do i=1,nfrag
-print'(2x,a,I4)','Fragment: ',i
-print'(2x,a,I4)','    size: ',flen(i)
-print'(2x,a)','    atoms: '
-write(fmt,'("(3x",I5,x,"I5)")') flen(i)
-write(*,fmt) ifrag(1:flen(i),i)
-! 
-do k=1,flen(i)
-do j=1,flen(i)
+
+! count bonds in fragments
+do k=1,flen(i)-1
+do j=k+1,flen(i)
     if (bond(ifrag(j,i),ifrag(k,i))==1) then
        fmol(i)%nbonds = fmol(i)%nbonds+1  !need to get num of bonds in each frag to allocate space for them
     endif
 enddo
 enddo
-!
+
+! print fragment info
+print'(2x,a,I4)','Fragment: ',i
+print'(2x,a,I4)','    size: ',flen(i)
+print'(2x,a,I4)','    nbonds: ',fmol(i)%nbonds
+   print'(2x,a)','    atoms : '
+write(fmt,'("(3x",I5,x,"I5)")') flen(i)
+write(*,fmt) ifrag(1:flen(i),i)
+ 
+
 enddo
 
 ! assign fragment coordinates and fmol
@@ -149,15 +156,16 @@ print*, 'Largest fragment size: ',maxval(flen)
 !allocate(fgrad(3,maxval(flen),nfrag))
 !allocate(fiat(maxval(flen),nfrag))
 
-
+! BUSY loop over all fragments
 do i=1,nfrag
 allocate(fmol(i)%xyz(3,flen(i)),fmol(i)%iat(flen(i)),fmol(i)%aname(flen(i)),fmol(i)%bond(flen(i),flen(i)))
 allocate(fmol(i)%g(3,flen(i)))
 allocate(fmol(i)%LJe(flen(i)),fmol(i)%LJrad(flen(i)),fmol(i)%chrg(flen(i)))
 allocate(fmol(i)%r0(fmol(i)%nbonds),fmol(i)%rk(fmol(i)%nbonds))
+allocate(fmol(i)%ibond(fmol(i)%nbonds,2))
  fmol(i)%nat=flen(i)
  fmol(i)%g=0d0
- fmol(i)%nbonds = 0 !my
+! ?? fmol(i)%nbonds = 0 
  do j=1,flen(i)
   ! use pre-assigned charges
   if(skip_charge) then
@@ -174,15 +182,12 @@ allocate(fmol(i)%r0(fmol(i)%nbonds),fmol(i)%rk(fmol(i)%nbonds))
    fmol(i)%iat(j)=iat(ifrag(j,i))
    fmol(i)%aname(j)=aname(ifrag(j,i))
 
-   ! my:
    do k=1,flen(i)
     fmol(i)%bond(j,k)=bond(ifrag(j,i),ifrag(k,i)) ! fill bond matrix for fragment
    enddo
-  !
  enddo
+ call get_frag_primitives(fmol(i))
 
-! write(name,'(I4,a)') i,'_frag.xyz'
-! if(write_xyz)call wrxyz(fiat(1,i),flen(i),fxyz(1,1,i),adjustl(trim(name)))
 enddo
 
 open(newunit=io,file='bff_ifrag',form='unformatted')
@@ -190,3 +195,49 @@ write(io) ifrag
 close(io)
 
 end
+
+
+subroutine get_frag_primitives(mol)
+use moldata
+implicit none
+integer, parameter :: maxcon=12
+type(molecule) mol
+integer :: c,i,j,k,l
+integer, allocatable :: inat(:) ! number of attached atoms
+integer, allocatable :: ipair12(:,:) ! id of attached atoms, max 8
+
+allocate(inat(mol%nat),ipair12(mol%nat,maxcon))
+! assign bonds for each fragment
+! this uses local xyz-indices
+mol%ibond=0
+c=0
+do i=1,mol%nat-1
+ do j=i+1,mol%nat
+   if(i==j) cycle
+  if (mol%bond(j,i)==1) then
+     c=c+1
+     mol%ibond(c,1)=i
+     mol%ibond(c,2)=j
+  endif
+ enddo
+enddo
+
+! 1-2 pair list for each fragment
+ipair12=0
+inat=0
+do i=1,mol%nat
+ do j=1,mol%nat
+  if(i==j) cycle
+  if(mol%bond(i,j)==1) then
+    inat(i)=inat(i)+1
+    ipair12(i,inat(i))=j
+    if(inat(i)>8) call error('too many connected atoms!')
+  endif
+ enddo
+enddo
+
+! angles for each fragment
+! torsions for each fragment
+
+
+end subroutine

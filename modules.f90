@@ -21,6 +21,9 @@ module moldata
   real(8), allocatable :: r0(:)
   real(8), allocatable :: rk(:)
   integer :: nbonds ! number of bonds
+  integer, allocatable :: ibond(:,:)  ! atom identifier
+  integer :: nangles ! number of valence angles
+  integer, allocatable :: iangles  ! atom identifier
  end type molecule
 logical :: skip_charge
 end module

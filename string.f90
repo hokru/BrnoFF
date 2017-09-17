@@ -177,7 +177,7 @@ end function
 subroutine atlist(string,al,ial)
 implicit none
 character(*) string
-character(120) aa,xx,bb
+character(255) aa,xx,bb
 character(1) a,x
 character(2) b
 character(10) records(100)
@@ -253,8 +253,8 @@ end subroutine
 
 subroutine rmspace(aa,sout,len)
 implicit none
-character(*) aa
-character(255) xx,sout
+character(*) aa,sout
+character(255) xx
 character(1) a
 integer i,ic,sl,c,len
 
@@ -318,4 +318,42 @@ outstr=instr(1:s(1)-1)
 !print*,instr(1:s(1)-1),' ',substr
 !print*,s(1)
 end subroutine
+
+module string_parse
+!*
+!* module containing more generic string interfaces
+!* str_parse(character string, integer ipos, integer/real val) = return numerical val of ipos'th word in string (space delimiter)
+!*
+
+interface str_parse
+ module procedure str_parse_i, str_parse_r8
+end interface
+
+contains
+
+  subroutine str_parse_i(string,ipos,val)
+  implicit none
+  character(*),intent(in) :: string
+  integer,intent(in) :: ipos
+  integer, intent(out) :: val
+  character(80) :: wx
+  integer,external :: s2i
+
+  call charXsplit(string,wx,ipos)
+  val=s2i(wx)
+  end subroutine
+
+  subroutine str_parse_r8(string,ipos,val)
+  implicit none
+  character(*),intent(in) :: string
+  integer,intent(in) :: ipos
+  real(8), intent(out) :: val
+  character(80) :: wx
+  real(8),external :: s2r
+
+  call charXsplit(string,wx,ipos)
+  val=s2r(wx)
+  end subroutine
+
+end module
 

@@ -47,7 +47,7 @@ OPENBLAS=/usr/qc/openblas_lib/
 
 
 # ***   GFORTRAN ***
-  FC = gfortran -static
+  FC = gfortran-6 -static
 #  FLAGS= -O -ffree-line-length-none -m64
  FLAGS= -O -fbounds-check -ffree-line-length-none -m64
   LIBS= -llapack -lblas

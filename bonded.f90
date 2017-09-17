@@ -4,42 +4,45 @@
 ! reminder
 ! r' -->  dx*irij
 
+
 subroutine cov_bond_harm(mol,e)
 use moldata
 implicit none
 type(molecule) :: mol
-integer :: i,j,io
-integer :: bond(mol%nat,mol%nat)
+integer :: i,j,io,a,b
 real(8) :: rij,e,r0,rab,rij2,irij,kb
 real(8) dx,dy,dz,tmp
 
-
+print*,'Covalent bond energies',mol%nbonds
 e=0d0
-do i=1,mol%nat-1
- do j=i,mol%nat
-    if(i==j) cycle
-      dx=mol%xyz(1,i)-mol%xyz(1,j)
-      dy=mol%xyz(2,i)-mol%xyz(2,j)
-      dz=mol%xyz(3,i)-mol%xyz(3,j)
+do i=1,mol%nbonds
+!      dx=mol%xyz(1,i)-mol%xyz(1,j)
+!      dy=mol%xyz(2,i)-mol%xyz(2,j)
+!      dz=mol%xyz(3,i)-mol%xyz(3,j)
+      a=mol%ibond(i,1)
+      b=mol%ibond(i,2)
+      dx=mol%xyz(1,a)-mol%xyz(1,b)
+      dy=mol%xyz(2,a)-mol%xyz(2,b)
+      dz=mol%xyz(3,a)-mol%xyz(3,b)
       rij2=(dx*dx+dy*dy+dz*dz)
       rij=sqrt(rij2)
       irij=1d0/sqrt(rij2)      ! 1/rij
-!      r0=mol%r0(i,j)
-!      kb=mol%rk(i,j)
-      r0=99
-      kb=1
+      r0=mol%r0(i)
+      kb=mol%rk(i)
+!      r0=99
+!      kb=1
       e=e+kb*(rij-r0)**2
+      print*,'ebond',i,a,b,e
 
       ! gradient, updates mol%g
       tmp=2d0*kb*(rij-r0)*irij
-      mol%g(1,i)=mol%g(1,i)+tmp*dx
-      mol%g(2,i)=mol%g(2,i)+tmp*dy
-      mol%g(3,i)=mol%g(3,i)+tmp*dz
+      mol%g(1,a)=mol%g(1,a)+tmp*dx
+      mol%g(2,a)=mol%g(2,a)+tmp*dy
+      mol%g(3,a)=mol%g(3,a)+tmp*dz
 
-      mol%g(1,j)=mol%g(1,j)-tmp*dx
-      mol%g(2,j)=mol%g(2,j)-tmp*dy
-      mol%g(3,j)=mol%g(3,j)-tmp*dz
- enddo
+      mol%g(1,b)=mol%g(1,b)-tmp*dx
+      mol%g(2,b)=mol%g(2,b)-tmp*dy
+      mol%g(3,b)=mol%g(3,b)-tmp*dz
 enddo
 
 end subroutine

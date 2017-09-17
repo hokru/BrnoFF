@@ -1,3 +1,10 @@
+! MEMO
+!  parm.dat
+!  #FFid <string> : name of force field
+!  #field : marks a new field
+!  !      : comment/skipped
+!  
+
 ! read params from file
 subroutine read_parm(pfile,FF)
 use FFparm
@@ -9,6 +16,12 @@ logical, external :: fstr
 type(FFdata) FF
 !integer, dimension(1:2) :: bondM_dim !my. dimensions of a bond matrix of a molecule
 ! real(8), parameter :: amber2kcal=18.2223d0
+integer :: n_c,n_vdw,n_bond,n_angle,n_torsion,n_chrg
+real(8) :: par(10)
+logical block(10)
+
+block=.false.
+n_c=0; n_vdw=0; n_angle=0; n_torsion=0;n_chrg=0
 
 FF%chrg=0d0
 FF%LJe=0d0
@@ -20,37 +33,74 @@ FF%nbondpar=0
 FF%bond_name=''
 FF%r0=0d0
 FF%rk=0d0
-!
 
 io=22
 open(io,file=pfile)
 do
  read(io,'(a)',end=100) aa !each line read into aa string
  if(fstr(aa,'#FFid'))  read(io,*) FF%id
- if(fstr(aa,'#npar')) then
-    read(io,*) FF%npar
-    if(FF%npar>maxpar) stop 'increase maxpar !!'
-    endif
  if(fstr(aa,'#vdw')) then
+!   if(n_vdw>0) exit
+   i=0
    print*,'reading vdw parameters'
-   do i=1,FF%npar
-     read(io,*,end=100) FF%aname(i),FF%LJrad(i),FF%LJe(i)
+   do 
+     read(io,'(a)',end=100) aa !each line read into aa string
+       if(fstr(aa,'#')) then
+          exit
+          backspace(io)
+       endif
+     if(fstr(aa,'!')) cycle
+     i=i+1
+!     backspace(io)
+     if(i>maxpar) stop 'maxpar reached!'
+       call read_paramline(aa,FF%aname(i),par)
+       FF%LJrad(i)=par(1)
+       FF%LJe(i)=par(2)
+!     read(io,*,end=100) FF%aname(i),FF%LJrad(i),FF%LJe(i)
    enddo
+!   backspace(io)
+   n_vdw=i
   endif
   if(fstr(aa,'#chrg')) then
+!   if(n_chrg>0) exit
+   i=0
    print*,'reading charges '
-     do i=1,FF%npar
-       read(io,*,end=100) FF%qname(i),FF%chrg(i)
-       FF%chrg(i)=FF%chrg(i)
+     do 
+       read(io,'(a)',end=100) aa !each line read into aa string
+       if(fstr(aa,'#')) then
+          exit
+          backspace(io)
+       endif
+       if(fstr(aa,'!')) cycle
+       i=i+1
+!       backspace(io)
+       if(i>maxpar) stop 'maxpar reached!'
+       call read_paramline(aa,FF%qname(i),par)
+       FF%chrg(i)=par(1)
+!       read(io,*,end=100) FF%qname(i),FF%chrg(i)
      enddo
+!     backspace(io)
+     n_chrg=i
   endif
   if(fstr(aa,'#bond')) then
+!   if(n_bond>0) exit
+   i=0
    print*,'reading bond parameters '
-    do i=1,FF%npar**2
-      read(io,*,end=100) FF%bond_name(i), FF%rk(i), FF%r0(i) !this supposes that there are NO spaces in definition of bond name, i.e C-C iv valid but C -C as in amber parm.dat will raise error!
-      call rmspace(FF%bond_name(i),FF%bond_name(i),len) ! should fix spaces?
+    do 
+       read(io,'(a)',end=100) aa !each line read into aa string
+       if(fstr(aa,'#')) then
+          exit
+          backspace(io)
+       endif
+       if(fstr(aa,'!')) cycle
+       i=i+1
+       if(i>maxpar2) stop 'maxpar^2 reached!'
+       call read_paramline(aa,FF%bond_name(i),par)
+       FF%rk(i)=par(1)
+       FF%r0(i)=par(2)
       FF%nbondpar = FF%nbondpar + 1
     enddo
+    n_bond=i
   endif
   !
 enddo
@@ -58,14 +108,42 @@ enddo
 100 continue
 close(io)
 
+
+FF%npar=n_chrg+n_vdw
 print*,''
 print*,'FF name      : ',FF%id
 print*,'non-bonded FF parameters:',FF%npar
-print*,'bond parameters: ',FF%nbondpar ! my
+print*,'bond parameters: ',FF%nbondpar 
 print*,''
 
 end subroutine
 
+subroutine read_paramline(str,namepar,par)
+use string_parse
+implicit none
+character(*), intent(in) :: str
+character(*), intent(out) :: namepar
+real(8) :: par(10)
+integer :: idx,len,n,i
+character(255) :: rest
+
+par=0
+
+! find first occurance of 2 spaces
+idx=index(str,'  ')
+
+namepar=adjustl(trim(str(1:idx)))
+call rmspace(namepar,namepar,len) 
+print* , '<',trim(namepar),'>'
+
+rest=str(idx:)
+call cstring(rest,n)
+if(n>10) stop '>10 params in line'
+
+do i=1,n
+ call str_parse(rest,i,par(i))
+enddo
+end subroutine
 
 subroutine assign_parm(FF,mol)
 use FFparm
@@ -124,7 +202,7 @@ assigned=.false.
       call split_string(FF%bond_name(k),a1,a2,'-')  !for CX-HY from parm file makes: a1=CX, a2=HY
       if( (trim(mol%aname(l)) == trim(a1) .AND. trim(mol%aname(i)) == trim(a2)) .OR. (trim(mol%aname(i)) == trim(a1) .AND. trim(mol%aname(l)) == trim(a2)) ) then
         numb = numb + 1
-        mol%nbonds = mol%nbonds + 1
+!        mol%nbonds = mol%nbonds + 1
         !print*,'nbonds' , mol%nbonds
         mol%r0(numb) = FF%r0(k) 
         mol%rk(numb) = FF%rk(k)
@@ -167,7 +245,6 @@ write(*,'(2x,a,2x,F10.4)') 'molecular charge: ',s
 
 end subroutine
 
-! my
 subroutine print_info_FFb(mol)
 use moldata
 type(molecule), intent(in):: mol
