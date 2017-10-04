@@ -200,6 +200,7 @@ end subroutine
 
 ! coulomb energy with charge-penetration correction (e only)
 ! ALPHA
+! Q. Wang et al JCTC 2015,11,2609; 10.1021/acs.jctc.5b00267
 subroutine ScreenedCoulomb(nfrag,fmol)
 use atomdata, only: rcov
 use constant, only: au2ang,AmberElec
