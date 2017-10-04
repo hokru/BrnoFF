@@ -197,3 +197,111 @@ enddo
 ! write(*,'(a,ES10.3)') 'Gnorm(coulomb) :',gnorm
 
 end subroutine
+
+! coulomb energy with charge-penetration correction (e only)
+! ALPHA
+subroutine ScreenedCoulomb(nfrag,fmol)
+use atomdata, only: rcov
+use constant, only: au2ang,AmberElec
+use moldata
+implicit none
+integer i,j,k,l,nat,ii,jj,nfrag
+type(molecule) fmol(nfrag)
+real(8) ec,dx,dy,dz,qq
+real(8) irij,irij2,rij2
+real(8) rab,gvdw(3),tmp2
+real(8) thr,gnorm
+
+real(8) alphai,alphaj,betai,betaj,r,zi,zj,val
+
+
+ec=0d0
+
+print*, 'screened   vs   conventional'
+do k=1,nfrag-1
+ do l=k+1,nfrag
+  do i=1,fmol(k)%nat
+   do j=1,fmol(l)%nat
+      zi=val(fmol(k)%iat(i))
+      zj=val(fmol(l)%iat(j))
+      call setCP(fmol(k)%iff(i),alphai,betai)
+      call setCP(fmol(l)%iff(j),alphaj,betaj)
+      alphai=zi
+      alphaj=zj
+      zi=zi*AmberElec
+      zj=zj*AmberElec
+      dx=fmol(k)%xyz(1,i)-fmol(l)%xyz(1,j)
+      dy=fmol(k)%xyz(2,i)-fmol(l)%xyz(2,j)
+      dz=fmol(k)%xyz(3,i)-fmol(l)%xyz(3,j)
+      r=sqrt(dx*dx+dy*dy+dz*dz) ! rij^2
+      qq=zi*zj                                       &
+             - zi*(zj-fmol(l)%chrg(j))*(1d0-exp(-alphaj*r))  &
+             - zj*(zi-fmol(k)%chrg(i))*(1d0-exp(-alphai*r))  &
+       + (zi-fmol(k)%chrg(i))*(zj-fmol(l)%chrg(j))*(1d0-exp(-betai*r))*(1d0-exp(-betaJ*r))
+!      print*,zi*(zj-fmol(l)%chrg(j))*(1d0-exp(-alphaj*r)),zj*(zi-fmol(k)%chrg(i))*(1d0-exp(-alphai*r)),(zi-fmol(k)%chrg(i))*(zj-fmol(l)%chrg(j))*(1d0-exp(-betai*r))*(1d0-exp(-betaJ*r))
+      print*, qq/r,(fmol(k)%chrg(i)*fmol(l)%chrg(j))/r
+      ec=ec+qq/r
+    enddo
+  enddo
+ enddo
+enddo
+
+
+write(*,'(a,F12.4,a)') '[test] E(screened coulomb) :',ec,' [kcal/mol]'
+
+end subroutine
+
+real(8) function val(i)
+implicit none
+integer i
+real(8) dat(5)
+! valence electrons
+!        H, C, N, O , P
+data dat/2, 4, 5, 6, 5/
+
+val=-1d0
+if(i==1) val=dat(1)
+if(i==6) val=dat(2)
+if(i==7) val=dat(3)
+if(i==8) val=dat(4)
+if(i==15) val=dat(5)
+if(val<0d0) stop 'error at the valence assignment!'
+end function
+
+
+subroutine setCP(atype,alpha,beta)
+implicit none
+integer atype
+real(8) alpha,beta
+real(8) adat(13),bdat(13)
+
+data bdat/ &
+!H(nonpol), H(arom), H(water),C(sp3), C(arom),C(sp2)
+ 1.999,    2.010,     2.004,    2.646, 2.708, 2.685 &
+! N(sp3),N(arom),N(sp2)
+ ,3.097   ,3.072  ,3.054 &
+! O(sp3,oh,water),O(arom),O(sp2,carbonyl),P(phosphate)
+,3.661,4.282,4.469,2.360/
+
+select case(atype)
+ case(1) 
+  beta=bdat(1)
+ case(2)
+  beta=bdat(4) ! Csp3
+ case(3)
+  beta=bdat(6) ! Csp2
+ case(5)
+  beta=bdat(12) ! O(arom)
+ case(6,10,11)
+  beta=bdat(11) ! O(arom)
+ case(12)
+  beta=bdat(10)
+ case(7:8)
+  beta=bdat(8) ! N(arom)
+ case(13)
+  beta=bdat(13) !phosphate
+ case default
+ stop 'unknown beta'
+end select
+
+end subroutine

@@ -10,7 +10,7 @@ use fragment, only: fmol,nfrag
 implicit none
 integer nat,i,n,j,k,io,ixyz
 character(120) infile,outfile
-real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond,s
+real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond,s,e_bond
 type(molecule) :: mol1
 type(FFdata)   :: FF
 character(2) :: esym
@@ -34,6 +34,7 @@ echo=.true.
 grad=.false.
 nchess=.false.
 s=0.0d0
+e_bond=0d0
 
 #ifdef OPENMP
     print*,''
@@ -117,6 +118,9 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     print*,' Assigning FF parameters fragment ',i
     ! if we already have the charges we must set the fragment charges now
     call assign_parm(FF,fmol(i))
+
+    allocate(fmol(i)%iff(n))
+    call get_atype(fmol(i)%nat,fmol(i)%iat,fmol(i)%xyz,fmol(i)%iff)
     call print_info_FFnb(fmol(i))
     call print_info_FFb(fmol(i))
     print*,''
@@ -125,13 +129,16 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     s=s+sum(fmol(i)%chrg)
     fmol(i)%chrg=fmol(i)%chrg*AmberElec
     call cov_bond_harm(fmol(i),ebond)
+    e_bond=e_bond+ebond
     enddo
+    write(*,'(2x,a,F18.5,a)') 'E(bond)',e_bond,' [kcal/mol]'
     write(*,'(2x,a,F10.4)') 'global charge= ',s
      call cpu_time(end_time)
     time_FF=end_time-start_time
     print*,' running non-bonded part..'
     call cpu_time(start_time)
     call nonbonded_amber(nfrag,fmol,evdw,ec)
+    call screenedcoulomb(nfrag,fmol)
 
     write(*,'(a)') ''
     write(*,'(a)') ''

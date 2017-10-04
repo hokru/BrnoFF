@@ -42,10 +42,10 @@ do i=1,nat
  enddo
 enddo
 
-write(*,'(a)')'CN:'
-do i=1,nat
- write(*,'(2x,I2,''['',a2,'']'',2x,I2)') i,esym(iat(i)),cn(i)
-enddo
+!write(*,'(a)')'CN:'
+!do i=1,nat
+! write(*,'(2x,I2,''['',a2,'']'',2x,I2)') i,esym(iat(i)),cn(i)
+!enddo
 
 
 
