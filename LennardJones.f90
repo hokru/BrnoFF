@@ -9,10 +9,12 @@ integer i,j,k,l,nfrag
 real(8) evdw,eij,rij,rij6,rab2,ec
 real(8) r0ij,a,b,r0ij6
 type(molecule) fmol(nfrag)
-real(8) dx,dy,dz,irij
+real(8) dx,dy,dz,irij,er6,er12
 
 evdw=0d0
 ec=0d0
+er6=0d0
+er12=0d0
 
 ! loop over pairs of fragments
 !$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) reduction(+:ec,evdw)
@@ -35,7 +37,9 @@ do k=1,nfrag-1
       r0ij6=r0ij**6                  ! rij^6
       a=eij*(r0ij6*r0ij6)
       b=2d0*eij*r0ij6
-      evdw=evdw + a/(rij6*rij6) - b/rij6
+!      evdw=evdw + a/(rij6*rij6) - b/rij6
+      er12=er12 +a/(rij6*rij6) 
+      er6=er6 -b/rij6
       ec=ec+(fmol(k)%chrg(i)*fmol(l)%chrg(j))*irij
    enddo
   enddo
@@ -43,9 +47,12 @@ enddo
 enddo
 !$omp end parallel do
 
+evdw=evdw + er12 + er6
 
 write(*,'(a,F12.4,a)') 'E(coulomb) :',ec,' [kcal/mol]'
 write(*,'(a,F12.4,a)') 'E(LJ 6-12) :',evdw,' [kcal/mol]'
+write(*,'(a,F12.4,a)') 'E(LJ 12) :',er12,' [kcal/mol]'
+write(*,'(a,F12.4,a)') 'E(LJ 6) :',er6,' [kcal/mol]'
 
 end subroutine
 
@@ -88,7 +95,6 @@ do k=1,nfrag-1
       b=2d0*eij*r0ij6          ! B
       evdw=evdw + a/(rij6*rij6) - b/rij6 ! LJ
       qq=(fmol(k)%chrg(i)*fmol(l)%chrg(j))
-      ! print*,fmol(k)%chrg(i),fmol(l)%chrg(j),fmol(k)%iat(i),fmol(k)%iat(i)
       ec=ec+qq*irij ! Coulomb
 
       ! cart. vdw gradient intermediate
@@ -252,6 +258,9 @@ write(*,'(a,F12.4,a)') '[test] E(screened coulomb) :',ec,' [kcal/mol]'
 
 end subroutine
 
+
+!!! below is quick & dirty and not fully correct !!!
+
 real(8) function val(i)
 implicit none
 integer i
@@ -278,11 +287,14 @@ real(8) adat(13),bdat(13)
 
 data bdat/ &
 !H(nonpol), H(arom), H(water),C(sp3), C(arom),C(sp2)
+! 1         2           3         4       5     6
  1.999,    2.010,     2.004,    2.646, 2.708, 2.685 &
 ! N(sp3),N(arom),N(sp2)
+!   7        8      9
  ,3.097   ,3.072  ,3.054 &
 ! O(sp3,oh,water),O(arom),O(sp2,carbonyl),P(phosphate)
-,3.661,4.282,4.469,2.360/
+! 10               11        12           13
+,3.661,         4.282,      4.469,       2.360/
 
 select case(atype)
  case(1) 

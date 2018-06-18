@@ -16,7 +16,8 @@ type(FFdata)   :: FF
 character(2) :: esym
 real(8) :: start_time, end_time
 real(8) :: time_nb,time_frag, time_ff
-
+logical ex
+character(255):: homedir, parmfile
 
 ! handle this better!??
 integer, allocatable :: ifrag(:,:)
@@ -29,6 +30,7 @@ integer omp_get_num_threads,nomp
 call print_header()
 
 ! defaults
+ex=.false.
 ixyz=1
 echo=.true.
 grad=.false.
@@ -100,8 +102,15 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
       end select
     print*,''
 
-    print*,'Reading parameter file:  <parm.dat>'
-    call read_parm('parm.dat',FF)
+    inquire(file='parm.dat',exist=ex)
+    if(ex) then
+       parmfile='parm.dat'
+    else
+       call get_environment_variable('HOME',homedir)
+       parmfile=trim(homedir)//'/parm.dat'
+    endif
+    print*,'Reading parameter file: ',trim(parmfile)
+    call read_parm(trim(parmfile),FF)
     print*,''
 
     print*,'Determining bonding info and fragments ...'

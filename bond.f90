@@ -38,11 +38,11 @@ do i=1,nat
 enddo
 
 
-if(nat < 100) then
- call printimat(6,nat,nat,bond,'bond matrix')
-else
- print*,'print of bondmatrix omitted'
-endif
+!if(nat < 100) then
+! call printimat(6,nat,nat,bond,'bond matrix')
+!else
+! print*,'print of bondmatrix omitted'
+!endif
 
 ! coordination number (integer)
 cn=0
