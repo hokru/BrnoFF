@@ -35,7 +35,8 @@ $(info Building: $(GIT_VERSION))
 USE_OMP=no
 #------- openmp parallelization --------------
 
-OPENBLAS=/usr/qc/openblas_lib/
+OPENBLAS=/usr/qc/OpenBLAS.0.3_omp
+OPENBLAS=/usr/qc/OpenBLAS.0.3_AVX/
 
 
 # ***   INTEL  ***
@@ -47,16 +48,18 @@ OPENBLAS=/usr/qc/openblas_lib/
 
 
 # ***   GFORTRAN ***
-  FC = gfortran -static
-#  FLAGS= -O -ffree-line-length-none -m64
- FLAGS= -O -fbounds-check -ffree-line-length-none -m64
-  LIBS= -llapack -lblas
-#  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
+  FC = gfortran -g
+  FLAGS= -O -ffree-line-length-none -m64
+# FLAGS= -O -fbounds-check -ffree-line-length-none -m64
+#  LIBS= -llapack -lblas
+  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 
 
 # ***   PGI       ***
-# FC=pgfortran -Bstatic
-# FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback
+# FC=pgfortran -Bdynamic -acc
+# FLAGS= -fast -Minfo=ipa,opt,par,mp,inline -i8 -traceback 
+# FLAGS= -fast -i8  -ta=tesla:managed -Minfo=accel -traceback
+# FLAGS= -fast -i8  -ta=multicore  -Minfo=accel -traceback -Mbounds
 # FLAGS= -fastsse -Mipa=fast  -Minfo=opt,par,loop,inline,vect,mp -i8 -traceback -Mconcur=levels:4 -Mvect=levels:4
 # LIBS= -llapack -lblas
 

@@ -27,15 +27,32 @@ write_xyz=.false.
 
 ! full symmetric bond matrix
 ! somewhat expensive
+!bond=0
+!do i=1,nat
+! do j=1,nat
+!   if(i==j) cycle
+!   r1=rcov(iat(i))+rcov(iat(j))*0.5
+!   r2=rab(xyz(1,i),xyz(1,j))
+!   if(abs(r1-r2) < 0.5) bond(i,j)=1
+! enddo
+!enddo
+
+
+!  bond matrix (triangular -> full)
 bond=0
-do i=1,nat
- do j=1,nat
+do i=1,nat-1
+ do j=i+1,nat
    if(i==j) cycle
    r1=rcov(iat(i))+rcov(iat(j))*0.5
    r2=rab(xyz(1,i),xyz(1,j))
-   if(abs(r1-r2) < 0.5) bond(i,j)=1
+   if(abs(r1-r2) < 0.5) then 
+      bond(i,j)=1
+      bond(j,i)=1
+   endif
  enddo
 enddo
+
+
 
 
 !if(nat < 100) then
@@ -231,7 +248,7 @@ do i=1,mol%nat
   if(mol%bond(i,j)==1) then
     inat(i)=inat(i)+1
     ipair12(i,inat(i))=j
-    if(inat(i)>8) call error('too many connected atoms!')
+    if(inat(i)>maxcon) call error('too many connected atoms!')
   endif
  enddo
 enddo

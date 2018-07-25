@@ -288,22 +288,3 @@ rot(3,3)=co_theta*co_psi
 end subroutine
 
 
-
-subroutine DiagSM(xvar,mat,eig)
-! lapack diag
-implicit none
-integer i,j,k
-real(8), allocatable :: aux(:)
-integer info,lwork,xvar
-real(8) ,intent(inout) :: mat(xvar,xvar)
-real(8) xx
-real(8), intent(out) :: eig(xvar)
-
-eig=0
-call dsyev ('V','U',xvar,mat,xvar,eig,xx,-1,info)
-lwork=int(xx)
-allocate(aux(lwork))
-call dsyev ('V','U',xvar,mat,xvar,eig,aux,lwork,info)
-if(info/=0) print*,'Diagonalization failed !!'
-end subroutine
-

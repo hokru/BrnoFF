@@ -6,7 +6,7 @@ subroutine nonbonded_amber(nfrag,fmol,evdw,ec)
 use moldata
 implicit none
 integer i,j,k,l,nfrag
-real(8) evdw,eij,rij,rij6,rab2,ec
+real(8) evdw,eij,rij,rij6,ec
 real(8) r0ij,a,b,r0ij6
 type(molecule) fmol(nfrag)
 real(8) dx,dy,dz,irij,er6,er12
@@ -17,7 +17,9 @@ er6=0d0
 er12=0d0
 
 ! loop over pairs of fragments
-!$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) reduction(+:ec,evdw)
+!$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) reduction(+:ec,er12,er6)
+!acc parallel loop reduction(+:ec,er12,er6) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) copy(fmol,nfrag)
+!$acc kernels  
 do k=1,nfrag-1
  do l=k+1,nfrag
 
@@ -45,6 +47,7 @@ do k=1,nfrag-1
   enddo
 enddo
 enddo
+!$acc end kernels  
 !$omp end parallel do
 
 evdw=evdw + er12 + er6
@@ -62,7 +65,7 @@ subroutine nonbonded_amber_engrad(nfrag,fmol,evdw,ec)
 use moldata
 implicit none
 integer i,j,k,l,nfrag
-real(8) evdw,eij,rij2,rij6,rab2,ec
+real(8) evdw,eij,rij2,rij6,ec
 real(8) r0ij,a,b,r0ij6
 type(molecule) fmol(nfrag)
 real(8) dx,dy,dz,irij,irij2

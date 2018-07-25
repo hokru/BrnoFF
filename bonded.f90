@@ -55,12 +55,12 @@ real(8) :: e
 real(8) :: ra(3),rb(3),rc(3)
 
 
-do i=1,mol%nangle
+!do i=1,mol%nangle
 !      a=mol%iangle(i,1)
 !      b=mol%iangle(i,2)
 !      c=mol%iangle(i,3)
 
-enddo
+!enddo
 
 
 end subroutine

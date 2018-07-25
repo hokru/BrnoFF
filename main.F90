@@ -145,9 +145,10 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
      call cpu_time(end_time)
     time_FF=end_time-start_time
     print*,' running non-bonded part..'
+
     call cpu_time(start_time)
     call nonbonded_amber(nfrag,fmol,evdw,ec)
-    call screenedcoulomb(nfrag,fmol)
+!    call screenedcoulomb(nfrag,fmol)
 
     write(*,'(a)') ''
     write(*,'(a)') ''
@@ -215,16 +216,16 @@ etotal=evdw+ec
 open(newunit=io,file='bff_gradient')
   write(io,'(2x,F20.12)') etotal
   do i=1,mol1%nat
-    write(io,'(3E22.13)'), mol1%g(1:3,i)
+    write(io,'(3E22.13)') mol1%g(1:3,i)
   enddo
 close(io)
 
-! kcal/mol / bohr
+! au / bohr
 open(newunit=io,file='bff_gradient_au')
 !  write(io,'(2x,F20.12)') etotal/au2kcal
   write(io,'(2x,F20.12)') etotal/au2kcal
   do i=1,mol1%nat
-    write(io,'(3E22.13)'), mol1%g(1:3,i)/(au2kcal/au2ang)
+    write(io,'(3E22.13)') mol1%g(1:3,i)/(au2kcal/au2ang)
   enddo
 close(io)
 

@@ -17,6 +17,8 @@ module moldata
   real(8), allocatable :: LJe(:)  !  LJ well-depth
   real(8), allocatable :: LJrad(:) ! LJ radius
 
+  integer, allocatable :: ipair14(:,:,:,:)
+
   ! pair arrays 
   real(8), allocatable :: r0(:)
   real(8), allocatable :: rk(:)

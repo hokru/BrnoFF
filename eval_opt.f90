@@ -17,6 +17,7 @@ do i=1,maxarg
 enddo
 filevec(1)=arg(1)
 
+
  do i=1,maxarg
   ftmp=arg(i)
   if(index(ftmp,'-h ').ne.0) then

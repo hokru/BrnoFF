@@ -4,8 +4,8 @@ gas phase input
 imin=0, ntx=1,
 ntb=0, ntc=1, ntf=1,
 cut = 999
-/
-&debugf
-do_debugf=1,dumpfrc=1
-/
+!/
+!&debugf
+!do_debugf=1,dumpfrc=1
+!/
 &end
