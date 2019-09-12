@@ -33,6 +33,7 @@ FF%nbondpar=0
 FF%bond_name=''
 FF%r0=0d0
 FF%rk=0d0
+FF%npar=0
 
 io=22
 open(io,file=pfile)
@@ -56,10 +57,12 @@ do
        call read_paramline(aa,FF%aname(i),par)
        FF%LJrad(i)=par(1)
        FF%LJe(i)=par(2)
-!     read(io,*,end=100) FF%aname(i),FF%LJrad(i),FF%LJe(i)
+       ! FF%npar=FF%npar+1
+       write(*,*) FF%aname(i),FF%LJrad(i),FF%LJe(i)
+       n_vdw=i
+    ! read(io,*,end=100) FF%aname(i),FF%LJrad(i),FF%LJe(i)
    enddo
 !   backspace(io)
-   n_vdw=i
   endif
   if(fstr(aa,'#chrg')) then
 !   if(n_chrg>0) exit
@@ -77,10 +80,10 @@ do
        if(i>maxpar) stop 'maxpar reached!'
        call read_paramline(aa,FF%qname(i),par)
        FF%chrg(i)=par(1)
+       n_chrg=i
 !       read(io,*,end=100) FF%qname(i),FF%chrg(i)
      enddo
 !     backspace(io)
-     n_chrg=i
   endif
   if(fstr(aa,'#bond')) then
 !   if(n_bond>0) exit
@@ -108,11 +111,12 @@ enddo
 100 continue
 close(io)
 
-
 FF%npar=n_chrg+n_vdw
 print*,''
 print*,'FF name      : ',FF%id
 print*,'non-bonded FF parameters:',FF%npar
+print*,'vdW FF parameters:',n_vdw
+print*,'charge FF parameters:',n_chrg
 print*,'bond parameters: ',FF%nbondpar 
 print*,''
 
@@ -164,7 +168,7 @@ do i=1,mol%nat
 assigned=.false.
  do j=1,FF%npar
    if( adjustl(trim(mol%aname(i))) == adjustl(trim(FF%aname(j))) ) then
-!   print*,'Assigning.. vdw ',trim(mol%aname(i)),i,esym(mol%iat(i))
+  print*,'Assigning.. vdw ',trim(mol%aname(i)),i,esym(mol%iat(i))
    assigned=.true.
    mol%LJe(i)=FF%LJe(j)
    mol%LJrad(i)=FF%LJrad(j)
