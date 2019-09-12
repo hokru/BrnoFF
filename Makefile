@@ -40,9 +40,9 @@ OPENBLAS=/usr/qc/OpenBLAS.0.3_AVX/
 
 
 # ***   INTEL  ***
-#  FC = ifort -static -mkl
+#  FC = ifort -mkl
 #  FLAGS= -O3 -m64 -qopt-report=5
-#  FLAGS= -O -m64 -qopt-report=5
+#  FLAGS= -O -m64 
 # FLAGS= -Og -g -fbounds-check -ffree-line-length-none -m64
 
 
@@ -51,8 +51,8 @@ OPENBLAS=/usr/qc/OpenBLAS.0.3_AVX/
   FC = gfortran -g
   FLAGS= -O -ffree-line-length-none -m64
 # FLAGS= -O -fbounds-check -ffree-line-length-none -m64
-#  LIBS= -llapack -lblas
-  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
+  LIBS= -llapack -lblas
+#  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 
 
 # ***   PGI       ***

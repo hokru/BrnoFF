@@ -46,7 +46,7 @@ end module
 
 
 module FFparm
-integer, parameter :: maxpar = 50, maxpar2 = maxpar**2
+integer, parameter :: maxpar = 1000, maxpar2 = maxpar**2
  type FFdata
   integer        :: npar ! # parameters
   character(120) :: id   ! FF name
