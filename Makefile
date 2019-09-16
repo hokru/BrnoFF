@@ -49,8 +49,8 @@ OPENBLAS=/usr/qc/OpenBLAS.0.3_AVX/
 
 # ***   GFORTRAN ***
   FC = gfortran -g
-  FLAGS= -O -ffree-line-length-none -m64
-# FLAGS= -O -fbounds-check -ffree-line-length-none -m64
+#  FLAGS= -O -ffree-line-length-none -m64
+ FLAGS= -O -fbounds-check -ffree-line-length-none -m64
   LIBS= -llapack -lblas
 #  LIBS= -L$(OPENBLAS)/lib/ -lopenblas -lpthread
 

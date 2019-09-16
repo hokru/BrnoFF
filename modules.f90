@@ -66,7 +66,7 @@ end module
 
 module logic
 logical echo ! printout
-logical grad ! do gradient
+logical do_grad ! do gradient
 character(120) filevec(5)
 logical nchess
 end module logic

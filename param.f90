@@ -58,7 +58,7 @@ do
        FF%LJrad(i)=par(1)
        FF%LJe(i)=par(2)
        ! FF%npar=FF%npar+1
-       write(*,*) FF%aname(i),FF%LJrad(i),FF%LJe(i)
+       ! write(*,*) FF%aname(i),FF%LJrad(i),FF%LJe(i)
        n_vdw=i
     ! read(io,*,end=100) FF%aname(i),FF%LJrad(i),FF%LJe(i)
    enddo
@@ -138,7 +138,7 @@ idx=index(str,'  ')
 
 namepar=adjustl(trim(str(1:idx)))
 call rmspace(namepar,namepar,len) 
-print* , '<',trim(namepar),'>'
+! print* , '<',trim(namepar),'>'
 
 rest=str(idx:)
 call cstring(rest,n)
@@ -168,7 +168,7 @@ do i=1,mol%nat
 assigned=.false.
  do j=1,FF%npar
    if( adjustl(trim(mol%aname(i))) == adjustl(trim(FF%aname(j))) ) then
-  print*,'Assigning.. vdw ',trim(mol%aname(i)),i,esym(mol%iat(i))
+  print*,'Assigning.. vdW ',trim(mol%aname(i)),i,esym(mol%iat(i))
    assigned=.true.
    mol%LJe(i)=FF%LJe(j)
    mol%LJrad(i)=FF%LJrad(j)

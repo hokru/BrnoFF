@@ -33,7 +33,7 @@ call print_header()
 ex=.false.
 ixyz=1
 echo=.true.
-grad=.false.
+do_grad=.false.
 nchess=.false.
 s=0.0d0
 e_bond=0d0
@@ -121,24 +121,26 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     print*,''
 
     print*,'FF setup..'
-     call cpu_time(start_time)
+    call cpu_time(start_time)
     do i=1,nfrag
-    n=fmol(i)%nat
-    print*,' Assigning FF parameters fragment ',i
-    ! if we already have the charges we must set the fragment charges now
-    call assign_parm(FF,fmol(i))
+        n=fmol(i)%nat
+        print*,' Assigning FF parameters fragment ',i
+        ! if we already have the charges we must set the fragment charges now
+        call assign_parm(FF,fmol(i))
 
-    allocate(fmol(i)%iff(n))
-    call get_atype(fmol(i)%nat,fmol(i)%iat,fmol(i)%xyz,fmol(i)%iff)
-    call print_info_FFnb(fmol(i))
-    call print_info_FFb(fmol(i))
-    print*,''
-    ! need to scale the charge for units used in amber
-    ! (units of the electron charge and kcal)
-    s=s+sum(fmol(i)%chrg)
-    fmol(i)%chrg=fmol(i)%chrg*AmberElec
-    call cov_bond_harm(fmol(i),ebond)
-    e_bond=e_bond+ebond
+        allocate(fmol(i)%iff(n))
+        call get_atype(fmol(i)%nat,fmol(i)%iat,fmol(i)%xyz,fmol(i)%iff)
+        call print_info_FFnb(fmol(i))
+        if (FF%nbondpar > 1) call print_info_FFb(fmol(i))
+        print*,''
+        ! need to scale the charge for units used in amber
+        ! (units of the electron charge and kcal)
+        s=s+sum(fmol(i)%chrg)
+        fmol(i)%chrg=fmol(i)%chrg*AmberElec
+        if (FF%nbondpar > 1) then
+          call cov_bond_harm(fmol(i),ebond)
+          e_bond=e_bond+ebond
+        endif
     enddo
     write(*,'(2x,a,F18.5,a)') 'E(bond)',e_bond,' [kcal/mol]'
     write(*,'(2x,a,F10.4)') 'global charge= ',s
@@ -165,69 +167,68 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     call prtime(6,time_nb,  'non-bonded part  ')
     call prtime(6,time_nb+time_FF+time_frag,  'total            ')
 
+    if(do_grad) then
+      print*,' running non-bonded engrad ..'
+      call cpu_time(start_time)
+      call nonbonded_amber_engrad(nfrag,fmol,evdw,ec)
+      call cpu_time(end_time)
+      time_nb=end_time-start_time
+      call prtime(6,time_nb,  'non-bonded engrad  ')
+  
+      allocate(ifrag(mol1%nat,9999))
+      open(newunit=io,file='bff_ifrag',form='unformatted')
+      read(io) ifrag
+      close(io,status='delete')
 
-    print*,' running non-bonded engrad ..'
-    call cpu_time(start_time)
-    call nonbonded_amber_engrad(nfrag,fmol,evdw,ec)
-    call cpu_time(end_time)
-    time_nb=end_time-start_time
-    call prtime(6,time_nb,  'non-bonded engrad  ')
-!
-    allocate(ifrag(mol1%nat,9999))
-    open(newunit=io,file='bff_ifrag',form='unformatted')
-    read(io) ifrag
-    close(io,status='delete')
 
-
-    ! supermolecular gradient + charges
-    do i=1,nfrag
-     do j=1,fmol(i)%nat
-      do k=1,3
-       mol1%g(k,ifrag(j,i))=fmol(i)%g(k,j)
+      ! supermolecular gradient + charges
+      do i=1,nfrag
+       do j=1,fmol(i)%nat
+        do k=1,3
+         mol1%g(k,ifrag(j,i))=fmol(i)%g(k,j)
+         enddo
+        mol1%chrg(ifrag(j,i))=fmol(i)%chrg(j)/AmberElec
        enddo
-      mol1%chrg(ifrag(j,i))=fmol(i)%chrg(j)/AmberElec
-     enddo
+      enddo
+
+    ! do i=1,mol1%nat
+    !  do j=1,3
+    !  write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', mol1%nat,']'
+    !  do j=1,3
+    !    nxyz(j,i)=nxyz(j,i)+step
+    !    call nonbonded_amber(nfrag,fmol,evdw,ec)
+    !    nxyz(j,i)=nxyz(j,i)-2_r8*step
+    !    call nonbonded_amber(nfrag,fmol,evdw,ec)
+    !    nxyz(j,i)=nxyz(j,i)+step
+    !    g(j,i)=(er-el)/(step*2_r8)
+    !  enddo
+    ! enddo
+    ! do i=1,mol1%nat
+    !   write(6,'(3E22.13)'), mol1%g(1:3,i)  
+    ! enddo
+
+
+    ! kcal/mol / A
+    open(newunit=io,file='bff_gradient')
+    write(io,'(2x,F20.12)') etotal
+    do i=1,mol1%nat
+      write(io,'(3E22.13)') mol1%g(1:3,i)
     enddo
+    close(io)
 
-
-! do i=1,mol1%nat
-!  do j=1,3
-!  write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', mol1%nat,']'
-!  do j=1,3
-!    nxyz(j,i)=nxyz(j,i)+step
-!    call nonbonded_amber(nfrag,fmol,evdw,ec)
-!    nxyz(j,i)=nxyz(j,i)-2_r8*step
-!    call nonbonded_amber(nfrag,fmol,evdw,ec)
-!    nxyz(j,i)=nxyz(j,i)+step
-!    g(j,i)=(er-el)/(step*2_r8)
-!  enddo
-! enddo
-
+    ! au / bohr
+    open(newunit=io,file='bff_gradient_au')
+    !  write(io,'(2x,F20.12)') etotal/au2kcal
+    write(io,'(2x,F20.12)') etotal/au2kcal
+    do i=1,mol1%nat
+      write(io,'(3E22.13)') mol1%g(1:3,i)/(au2kcal/au2ang)
+    enddo
+close(io)
+   endif
 endif
 
+! Sum energies
 etotal=evdw+ec
-
-! do i=1,mol1%nat
-!   write(6,'(3E22.13)'), mol1%g(1:3,i)  
-! enddo
-
-
-! kcal/mol / A
-open(newunit=io,file='bff_gradient')
-  write(io,'(2x,F20.12)') etotal
-  do i=1,mol1%nat
-    write(io,'(3E22.13)') mol1%g(1:3,i)
-  enddo
-close(io)
-
-! au / bohr
-open(newunit=io,file='bff_gradient_au')
-!  write(io,'(2x,F20.12)') etotal/au2kcal
-  write(io,'(2x,F20.12)') etotal/au2kcal
-  do i=1,mol1%nat
-    write(io,'(3E22.13)') mol1%g(1:3,i)/(au2kcal/au2ang)
-  enddo
-close(io)
 
 print*,'writing bff.exyz'
 open(newunit=io,file='bff.exyz')
