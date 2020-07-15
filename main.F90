@@ -49,8 +49,6 @@ e_bond=0d0
 
 call eval_options()
 
-if(nchess) print*,'NON-COVALENT MODEL HESSIAN'
-
 print*,''
 !process molecules
 print*,'structure: ',trim(filevec(1))
@@ -69,6 +67,7 @@ print*,'structure: ',trim(filevec(1))
 
 ! read molecule data
 if(nchess) then
+    print*,'NON-COVALENT MODEL HESSIAN'
     call tmolrd(trim(filevec(1)),.false.,mol1%xyz,mol1%iat,nat)
     print*,''
     print*,'loading internal parameters'
