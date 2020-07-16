@@ -35,11 +35,32 @@ FF%r0=0d0
 FF%rk=0d0
 FF%npar=0
 
+nbfix_ipair=0
+nbfix_shift=0
+
 io=22
 open(io,file=pfile)
 do
  read(io,'(a)',end=100) aa !each line read into aa string
+ !-----------------------------------------------------------------
+ if(fstr(aa,'#nbfix')) then
+   ! <at_nr>  <at_nr> <shift>
+   nbfix_npair=0
+   i=1
+   do
+     read(io,'(a)',end=100) aa
+     if(fstr(aa,'#')) exit
+     if(fstr(aa,'!')) cycle
+     backspace(io)
+     read(io,*,end=100) nbfix_ipair(i,1), nbfix_ipair(i,2), nbfix_shift(i)
+     i=i+1
+   enddo
+   nbfix_npair=i-1
+   if(nbfix_npair>0) print*,'Found ',nbfix_npair, ' NBfix pairs!'
+ endif
+ !-----------------------------------------------------------------
  if(fstr(aa,'#FFid'))  read(io,*) FF%id
+ !-----------------------------------------------------------------
  if(fstr(aa,'#vdw')) then
 !   if(n_vdw>0) exit
    i=0
@@ -64,6 +85,7 @@ do
    enddo
 !   backspace(io)
   endif
+  !-----------------------------------------------------------------
   if(fstr(aa,'#chrg')) then
 !   if(n_chrg>0) exit
    i=0
@@ -85,6 +107,7 @@ do
      enddo
 !     backspace(io)
   endif
+  !-----------------------------------------------------------------
   if(fstr(aa,'#bond')) then
 !   if(n_bond>0) exit
    i=0
@@ -121,6 +144,7 @@ print*,'bond parameters: ',FF%nbondpar
 print*,''
 
 end subroutine
+
 
 subroutine read_paramline(str,namepar,par)
 use string_parse
@@ -168,7 +192,7 @@ do i=1,mol%nat
 assigned=.false.
  do j=1,FF%npar
    if( adjustl(trim(mol%aname(i))) == adjustl(trim(FF%aname(j))) ) then
-  print*,'Assigning.. vdW ',trim(mol%aname(i)),i,esym(mol%iat(i))
+   print*,'Assigning.. vdW ',trim(mol%aname(i)),i,esym(mol%iat(i))
    assigned=.true.
    mol%LJe(i)=FF%LJe(j)
    mol%LJrad(i)=FF%LJrad(j)

@@ -2,14 +2,24 @@
 
 
 ! amber vdw terms (using r0/2 !) and coulomb
-subroutine nonbonded_amber(nfrag,fmol,evdw,ec)
-use moldata
+subroutine nonbonded_amber(evdw,ec)
+use fragment, only : fmol, nfrag, flen, fiat
+use FFparm, only: nbfix_npair,nbfix_ipair,nbfix_shift
 implicit none
-integer i,j,k,l,nfrag
+integer i,j,k,l !,nfrag
 real(8) evdw,eij,rij,rij6,ec
 real(8) r0ij,a,b,r0ij6
-type(molecule) fmol(nfrag)
+! type(molecule) fmol(nfrag)
 real(8) dx,dy,dz,irij,er6,er12
+integer ifix
+
+integer, allocatable :: ifrag(:,:)
+integer io
+allocate(ifrag(sum(flen),9999))
+open(newunit=io,file='bff_ifrag',form='unformatted')
+read(io) ifrag
+close(io)
+
 
 evdw=0d0
 ec=0d0
@@ -17,7 +27,8 @@ er6=0d0
 er12=0d0
 
 ! loop over pairs of fragments
-!$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) reduction(+:ec,er12,er6)
+! !$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) reduction(+:ec,er12,er6)
+! turned off for now. Looping over fragments it not really worth it
 !acc parallel loop reduction(+:ec,er12,er6) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij,rij6,irij,r0ij6,a,b) copy(fmol,nfrag)
 !$acc kernels  
 do k=1,nfrag-1
@@ -33,15 +44,29 @@ do k=1,nfrag-1
       dy=fmol(k)%xyz(2,i)-fmol(l)%xyz(2,j)
       dz=fmol(k)%xyz(3,i)-fmol(l)%xyz(3,j)
 
+      ! NFbix (as we dont pre-compute LJ params we need to do it here). 
+      ! I REALLY would like to avoid ifrag matrix here
+      if (any(nbfix_shift > 0.0d0)) then
+        do ifix=1,nbfix_npair
+          if ( (ifrag(i,k) == nbfix_ipair(ifix,1)) .and. (ifrag(j,l) == nbfix_ipair(ifix,2)) ) then
+            r0ij=fmol(k)%LJrad(i)+fmol(l)%LJrad(j)-nbfix_shift(ifix)
+              print*, nbfix_ipair(ifix,1),  nbfix_ipair(ifix,2)
+            ! print*,'hit',r0ij
+          endif
+       enddo
+     endif
+
+
       rij=(dx*dx+dy*dy+dz*dz) ! rij^2
       irij=1d0/sqrt(rij)
-      rij6=rij**3                  ! rij^6
-      r0ij6=r0ij**6                  ! rij^6
+      rij6=rij**3         ! rij^6
+      r0ij6=r0ij**6       ! rij^6
       a=eij*(r0ij6*r0ij6)
-      b=2d0*eij*r0ij6
+      b=2.0d0*eij*r0ij6
 !      evdw=evdw + a/(rij6*rij6) - b/rij6
       er12=er12 +a/(rij6*rij6) 
       er6=er6 -b/rij6
+      print*,'LJ',ifrag(i,k),ifrag(j,l),a/(rij6*rij6)-b/rij6,r0ij,fiat(i,k),fiat(j,l)
       ec=ec+(fmol(k)%chrg(i)*fmol(l)%chrg(j))*irij
    enddo
   enddo
@@ -75,7 +100,8 @@ evdw=0d0
 ec=0d0
 
 ! loop over pairs of fragments
-!$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij2,rij6,irij,irij2,r0ij6,a,b,gvdw,rij14,rij8,tmp,qq,tmp2) reduction(+:ec,evdw)
+! turned off for now. Looping over fragments it not really worth it
+! !$omp parallel do default(none) shared(fmol,nfrag) private(k,l,i,j,r0ij,eij,dx,dy,dz,rij2,rij6,irij,irij2,r0ij6,a,b,gvdw,rij14,rij8,tmp,qq,tmp2) reduction(+:ec,evdw)
 do k=1,nfrag-1
  do l=k+1,nfrag
 
@@ -99,7 +125,7 @@ do k=1,nfrag-1
       evdw=evdw + a/(rij6*rij6) - b/rij6 ! LJ
       qq=(fmol(k)%chrg(i)*fmol(l)%chrg(j))
       ec=ec+qq*irij ! Coulomb
-
+      ! print*,'LJ2', a/(rij6*rij6)-b/rij6
       ! cart. vdw gradient intermediate
       tmp=(-12d0*a*(irij2**7) + 6d0*b*(irij2**4))
       ! cart. coulomb gradient intermediate

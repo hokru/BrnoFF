@@ -148,7 +148,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     print*,' running non-bonded part..'
 
     call cpu_time(start_time)
-    call nonbonded_amber(nfrag,fmol,evdw,ec)
+    call nonbonded_amber(evdw,ec)
 !    call screenedcoulomb(nfrag,fmol)
 
     write(*,'(a)') ''
@@ -165,7 +165,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     call prtime(6,time_FF,  'force field setup')
     call prtime(6,time_nb,  'non-bonded part  ')
     call prtime(6,time_nb+time_FF+time_frag,  'total            ')
-
+    
     if(do_grad) then
       print*,' running non-bonded engrad ..'
       call cpu_time(start_time)

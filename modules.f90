@@ -1,4 +1,12 @@
 
+module prog_limits
+  ! hard corded limits for convience
+integer, parameter :: maxfrag=9999
+integer, parameter :: maxpar = 1000, maxpar2 = maxpar**2
+integer, parameter :: max_nbfix = 50
+end module
+
+
 module moldata
  ! holds data for a molecule
  type molecule
@@ -17,7 +25,7 @@ module moldata
   real(8), allocatable :: LJe(:)  !  LJ well-depth
   real(8), allocatable :: LJrad(:) ! LJ radius
 
-  integer, allocatable :: ipair14(:,:,:,:)
+  integer, allocatable :: ipair14(:,:,:,:) 
 
   ! pair arrays 
   real(8), allocatable :: r0(:)
@@ -26,6 +34,7 @@ module moldata
   integer, allocatable :: ibond(:,:)  ! atom identifier
   integer :: nangles ! number of valence angles
   integer, allocatable :: iangles  ! atom identifier
+
  end type molecule
 logical :: skip_charge
 end module
@@ -33,20 +42,22 @@ end module
 
 module fragment
 use moldata
-integer, parameter :: maxfrag=9999
+use prog_limits, only: maxfrag, max_nbfix
+
 
 integer :: flen(maxfrag)       ! # atoms per fragment
 integer :: iidn(maxfrag)       ! # atom index per fragment
 integer :: nfrag  ! frag_atom_index, frag_index, number of fragments
 real(8), allocatable :: fxyz(:,:,:) ! fragment coordinates size= (3,max(flen)),nfrag)
 integer, allocatable :: fiat(:,:)
-type(molecule) fmol(9999)
+type(molecule) fmol(maxfrag)
 
+integer :: nbfix_fragid(max_nbfix,max_nbfix)
 end module
 
 
 module FFparm
-integer, parameter :: maxpar = 1000, maxpar2 = maxpar**2
+use prog_limits
  type FFdata
   integer        :: npar ! # parameters
   character(120) :: id   ! FF name
@@ -60,7 +71,12 @@ integer, parameter :: maxpar = 1000, maxpar2 = maxpar**2
   character(8) :: bond_name(maxpar2) ! atom pair name array for bonds
   real(8) :: r0(maxpar2) ! r0 for bonds
   real(8) :: rk(maxpar2) ! force constants for bonds
+
  end type
+   ! NBfix
+  integer :: nbfix_npair ! number of NBfix modificated pairs
+  integer :: nbfix_ipair(max_nbfix,2) ! NBfix pairs 
+  real(8) :: nbfix_shift(max_nbfix) ! NBfix shift value for i-th pair
 end module
 
 

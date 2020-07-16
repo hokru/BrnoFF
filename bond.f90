@@ -171,7 +171,7 @@ print*, 'Largest fragment size: ',maxval(flen)
 
 !allocate(fxyz(3,maxval(flen),nfrag))
 !allocate(fgrad(3,maxval(flen),nfrag))
-!allocate(fiat(maxval(flen),nfrag))
+allocate(fiat(maxval(flen),nfrag))
 
 ! BUSY loop over all fragments
 do i=1,nfrag
@@ -191,7 +191,7 @@ allocate(fmol(i)%ibond(fmol(i)%nbonds,2))
 !   fxyz(1,j,i)=xyz(1,ifrag(j,i))
 !   fxyz(2,j,i)=xyz(2,ifrag(j,i))
 !   fxyz(3,j,i)=xyz(3,ifrag(j,i))
-!   fiat(j,i)=iat(ifrag(j,i))
+  fiat(j,i)=iat(ifrag(j,i))
 
    fmol(i)%xyz(1,j)=xyz(1,ifrag(j,i))
    fmol(i)%xyz(2,j)=xyz(2,ifrag(j,i))
