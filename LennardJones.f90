@@ -48,9 +48,10 @@ do k=1,nfrag-1
       ! I REALLY would like to avoid ifrag matrix here
       if (any(nbfix_shift > 0.0d0)) then
         do ifix=1,nbfix_npair
-          if ( (ifrag(i,k) == nbfix_ipair(ifix,1)) .and. (ifrag(j,l) == nbfix_ipair(ifix,2)) ) then
-            r0ij=fmol(k)%LJrad(i)+fmol(l)%LJrad(j)-nbfix_shift(ifix)
-              print*, nbfix_ipair(ifix,1),  nbfix_ipair(ifix,2)
+          if ( ( (ifrag(i,k) == nbfix_ipair(ifix,1)) .and. (ifrag(j,l) == nbfix_ipair(ifix,2)) ) .or.  &
+               ( (ifrag(j,l) == nbfix_ipair(ifix,1)) .and. (ifrag(i,k) == nbfix_ipair(ifix,2)) ) ) then
+              r0ij=fmol(k)%LJrad(i)+fmol(l)%LJrad(j)-nbfix_shift(ifix)
+              print*,'NBFfix atoms', nbfix_ipair(ifix,1),  nbfix_ipair(ifix,2),'R0ij0',r0ij
             ! print*,'hit',r0ij
           endif
        enddo

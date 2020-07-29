@@ -56,7 +56,12 @@ do
      i=i+1
    enddo
    nbfix_npair=i-1
-   if(nbfix_npair>0) print*,'Found ',nbfix_npair, ' NBfix pairs!'
+   if(nbfix_npair>0) then 
+    print*,'Found ',nbfix_npair, ' NBfix pairs!'
+    do i=1,nbfix_npair
+      print*,i, nbfix_ipair(i,:), nbfix_shift(i)
+    enddo
+   endif
  endif
  !-----------------------------------------------------------------
  if(fstr(aa,'#FFid'))  read(io,*) FF%id
@@ -201,8 +206,8 @@ assigned=.false.
  enddo
 
  if(.not.assigned) then
-  print*,'Error in vdW assignment!'
   print*,'unknown atom:',i, esym(mol%iat(i)),mol%aname(i)
+  stop 'Error in vdW assignment!'
  endif
 
 if(skip_charge) cycle
@@ -217,8 +222,8 @@ assigned=.false.
  enddo
 
  if(.not.assigned) then
-  print*,'Error in charge assignment!'
   print*,'unknown atom:',i, esym(mol%iat(i)),mol%aname(i)
+  stop 'Error in charge assignment!'
  endif
 
  ! bond assignement - r0 and rk:
