@@ -133,6 +133,10 @@ if(esym(iat(i))=='p ') then
  if(cn(i)==4) atype(i)=9
 endif
 
+if(esym(iat(i))=='k ') then
+  atype(i)=17
+ endif
+
 write(*,'(i4,2x,a2,2x,i3,2x,a20)') i,esym(iat(i)),atype(i),atstring(atype(i))
 enddo
 

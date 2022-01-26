@@ -67,7 +67,7 @@ do k=1,nfrag-1
 !      evdw=evdw + a/(rij6*rij6) - b/rij6
       er12=er12 +a/(rij6*rij6) 
       er6=er6 -b/rij6
-      print*,'LJ',ifrag(i,k),ifrag(j,l),a/(rij6*rij6)-b/rij6,r0ij,fiat(i,k),fiat(j,l)
+      ! print*,'LJ',ifrag(i,k),ifrag(j,l),a/(rij6*rij6)-b/rij6,r0ij,fiat(i,k),fiat(j,l)
       ec=ec+(fmol(k)%chrg(i)*fmol(l)%chrg(j))*irij
    enddo
   enddo

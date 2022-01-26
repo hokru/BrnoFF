@@ -112,8 +112,6 @@ if(user_fragments) then
         nfrag=nfrag+1
         call atlist(aa,ifrag(:,nfrag),flen(nfrag))
       enddo
-    else
-      stop 'no fragment definition found!'
     endif
   enddo
 else ! automatic
