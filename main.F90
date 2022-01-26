@@ -17,7 +17,7 @@ character(2) :: esym
 real(8) :: start_time, end_time
 real(8) :: time_nb,time_frag, time_ff
 logical ex
-character(255):: homedir, parmfile
+character(255):: homedir
 
 ! handle this better!??
 integer, allocatable :: ifrag(:,:)
@@ -37,6 +37,7 @@ do_grad=.false.
 nchess=.false.
 s=0.0d0
 e_bond=0d0
+user_fragments=.false.
 
 #ifdef OPENMP
     print*,''
@@ -89,6 +90,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     call det_xyz_type(filevec(1),ixyz)
     select case (ixyz)
       case(1)
+        call tmolrd(trim(filevec(1)),.false.,mol1%xyz,mol1%iat,nat)
       case default
        call error(6,'no enhanced xyz file found')
       case(2)
@@ -109,7 +111,7 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
        parmfile=trim(homedir)//'/parm.dat'
     endif
     print*,'Reading parameter file: ',trim(parmfile)
-    call read_parm(trim(parmfile),FF)
+    call read_parm(FF)
     print*,''
 
     print*,'Determining bonding info and fragments ...'

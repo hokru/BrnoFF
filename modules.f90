@@ -58,6 +58,7 @@ end module
 
 module FFparm
 use prog_limits
+ character(255) parmfile ! force field parameter file
  type FFdata
   integer        :: npar ! # parameters
   character(120) :: id   ! FF name
@@ -85,6 +86,7 @@ logical echo ! printout
 logical do_grad ! do gradient
 character(120) filevec(5)
 logical nchess
+logical user_fragments
 end module logic
 
 

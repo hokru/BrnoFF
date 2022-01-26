@@ -3,6 +3,8 @@ subroutine bondmat(nat,iat,xyz,aname,bond,cn,charge)
 use atomdata, only: rcov
 use moldata
 use fragment
+use FFparm, only: parmfile
+use logic, only: user_fragments
 implicit none
 
 integer nat,iat(nat),i,j,l,k,c
@@ -10,12 +12,12 @@ integer bond(nat,nat),cn(nat),atype(nat),cm(nat,nat),io
 real(8) r1,r2,rab
 real(8) xyz(3,nat),charge(nat)
 character(2) esym
-character(120) fmt,name
+character(120) fmt,name,aa
 character(4) aname(nat)
 
 logical exclude(nat),assigned
 integer tmp_flen, tmp_nfrag,idx
-logical write_xyz
+logical write_xyz, fstr
 logical debug
 
 integer :: ifrag(nat,maxfrag)  !frag info array (can become LARGE!)
@@ -36,7 +38,6 @@ write_xyz=.false.
 !   if(abs(r1-r2) < 0.5) bond(i,j)=1
 ! enddo
 !enddo
-
 
 !  bond matrix (triangular -> full)
 bond=0
@@ -95,50 +96,74 @@ nfrag=0
 ! count fragments and allocate dynamically...
 ! to-be-done
 
+! read manual fragment specification
 
-! assignt fragments
-exclude(1)=.true.
+if(user_fragments) then
+  open(newunit=io,file=trim(parmfile))
+  do
+  read(io,'(a)',end=100) aa !each line read into aa string
+    if(fstr(aa,'#fragments')) then
+      nfrag=0
+      do
+        read(io,'(a)',end=100) aa !each line read into aa string
+        if(fstr(aa,'#')) then
+            exit
+        endif
+        nfrag=nfrag+1
+        call atlist(aa,ifrag(:,nfrag),flen(nfrag))
+      enddo
+    else
+      stop 'no fragment definition found!'
+    endif
+  enddo
+else ! automatic
+  ! assignt fragments
+  exclude(1)=.true.
 
-! becomes expensive for many fragments (solvents!)
-atomloop: do i=1,nat
+  ! becomes expensive for many fragments (solvents!)
+  atomloop: do i=1,nat
 
- if(debug) then
-  print*,' ATOM: ', i
-  print*,'   flen',flen(1:nfrag)
- endif
-
-  ! atom bound to a previous fragment?
-  assigned=.false.
-  fragloop: do idf=1,nfrag
-	      if(debug)      print*,'    frag:',idf,flen(idf)
-	       do k=1,flen(idf)
-		  idx=ifrag(k,idf)
-		  if(debug) print*,'      idf/idn/atom ',idf,k,idx
-		  if(bond(i,idx)==1.and..not.assigned) then
-		    if(debug) print*,'               --> bound to atom ',idx
-		     assigned=.true.
-		     iidn(idf)=iidn(idf)+1
-		     idn=iidn(idf)
-		     flen(idf)=flen(idf)+1
-		     ifrag(idn,idf)=i
-		     exclude(i)=.true.
-		  endif
-	       enddo
-  enddo fragloop
-
-  if(.not.assigned) then
-  if(debug) print*,'--> nfrag+1 for atom ',i
-  !idn=1
-  nfrag=nfrag+1
-  iidn(nfrag)=1
-  idn=iidn(idf)
-  if(nfrag>maxfrag) stop ' increase maxfrag!'
-  flen(nfrag)=1
-  ifrag(idn,nfrag)=i
+  if(debug) then
+    print*,' ATOM: ', i
+    print*,'   flen',flen(1:nfrag)
   endif
 
-  if(debug) call printimat(6,6,2,ifrag,'ifrag')
-enddo atomloop
+    ! atom bound to a previous fragment?
+    assigned=.false.
+    fragloop: do idf=1,nfrag
+          if(debug)      print*,'    frag:',idf,flen(idf)
+          do k=1,flen(idf)
+        idx=ifrag(k,idf)
+        if(debug) print*,'      idf/idn/atom ',idf,k,idx
+        if(bond(i,idx)==1.and..not.assigned) then
+          if(debug) print*,'               --> bound to atom ',idx
+          assigned=.true.
+          iidn(idf)=iidn(idf)+1
+          idn=iidn(idf)
+          flen(idf)=flen(idf)+1
+          ifrag(idn,idf)=i
+          exclude(i)=.true.
+        endif
+          enddo
+    enddo fragloop
+
+    if(.not.assigned) then
+    if(debug) print*,'--> nfrag+1 for atom ',i
+    !idn=1
+    nfrag=nfrag+1
+    iidn(nfrag)=1
+    idn=iidn(idf)
+    if(nfrag>maxfrag) stop ' increase maxfrag!'
+    flen(nfrag)=1
+    ifrag(idn,nfrag)=i
+    endif
+
+    if(debug) call printimat(6,6,2,ifrag,'ifrag')
+  enddo atomloop
+
+endif
+100 continue
+close(io)
 
 
 print*,'# fragments found',nfrag

@@ -6,10 +6,10 @@
 !  
 
 ! read params from file
-subroutine read_parm(pfile,FF)
+subroutine read_parm(FF)
 use FFparm
+use fragment
 implicit none
-character(*) pfile
 character(120) aa
 integer io,i,len
 logical, external :: fstr
@@ -39,7 +39,7 @@ nbfix_ipair=0
 nbfix_shift=0
 
 io=22
-open(io,file=pfile)
+open(io,file=trim(parmfile))
 do
  read(io,'(a)',end=100) aa !each line read into aa string
  !-----------------------------------------------------------------
