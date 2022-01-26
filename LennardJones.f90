@@ -237,7 +237,7 @@ end subroutine
 ! coulomb energy with charge-penetration correction (e only)
 ! ALPHA
 ! Q. Wang et al JCTC 2015,11,2609; 10.1021/acs.jctc.5b00267
-subroutine ScreenedCoulomb(nfrag,fmol)
+subroutine ScreenedCoulomb(nfrag,fmol,ec)
 use atomdata, only: rcov
 use constant, only: au2ang,AmberElec
 use moldata
@@ -276,7 +276,7 @@ do k=1,nfrag-1
              - zj*(zi-fmol(k)%chrg(i))*(1d0-exp(-alphai*r))  &
        + (zi-fmol(k)%chrg(i))*(zj-fmol(l)%chrg(j))*(1d0-exp(-betai*r))*(1d0-exp(-betaJ*r))
 !      print*,zi*(zj-fmol(l)%chrg(j))*(1d0-exp(-alphaj*r)),zj*(zi-fmol(k)%chrg(i))*(1d0-exp(-alphai*r)),(zi-fmol(k)%chrg(i))*(zj-fmol(l)%chrg(j))*(1d0-exp(-betai*r))*(1d0-exp(-betaJ*r))
-      print*, qq/r,(fmol(k)%chrg(i)*fmol(l)%chrg(j))/r
+      ! print*, qq/r,(fmol(k)%chrg(i)*fmol(l)%chrg(j))/r
       ec=ec+qq/r
     enddo
   enddo
@@ -294,10 +294,10 @@ end subroutine
 real(8) function val(i)
 implicit none
 integer i
-real(8) dat(5)
+real(8) dat(6)
 ! valence electrons
-!        H, C, N, O , P
-data dat/2, 4, 5, 6, 5/
+!        H, C, N, O , P, alkali
+data dat/2, 4, 5, 6, 5, 1/
 
 val=-1d0
 if(i==1) val=dat(1)
@@ -305,6 +305,8 @@ if(i==6) val=dat(2)
 if(i==7) val=dat(3)
 if(i==8) val=dat(4)
 if(i==15) val=dat(5)
+if(i==11) val=dat(6) ! Na+
+if(i==19) val=dat(6) ! K+
 if(val<0d0) stop 'error at the valence assignment!'
 end function
 
@@ -343,6 +345,8 @@ select case(atype)
   beta=bdat(8) ! N(arom)
  case(13)
   beta=bdat(13) !phosphate
+ case(17)
+  beta=2.0  ! needs a value
  case default
  stop 'unknown beta'
 end select

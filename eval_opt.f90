@@ -27,6 +27,7 @@ filevec(1)=arg(1)
   endif
   if(fstr(ftmp,'-nchess')) nchess=.true.
   if(fstr(ftmp,'-manual')) user_fragments=.true.
+  if(fstr(ftmp,'-screen')) do_screen=.true.
  enddo
 
 

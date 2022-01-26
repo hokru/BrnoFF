@@ -10,7 +10,7 @@ use fragment, only: fmol,nfrag
 implicit none
 integer nat,i,n,j,k,io,ixyz
 character(120) infile,outfile
-real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond,s,e_bond
+real(8) etotal,ec,evdw,rab,morse_OH,gnorm,ebond,s,e_bond,ec2
 type(molecule) :: mol1
 type(FFdata)   :: FF
 character(2) :: esym
@@ -38,6 +38,7 @@ nchess=.false.
 s=0.0d0
 e_bond=0d0
 user_fragments=.false.
+do_screen=.false.
 
 #ifdef OPENMP
     print*,''
@@ -150,8 +151,12 @@ else ! FRAGMENT-BASED AMBER-LIKE FF
     print*,' running non-bonded part..'
 
     call cpu_time(start_time)
+    ! if(.not.do_screen) then
     call nonbonded_amber(evdw,ec)
-!    call screenedcoulomb(nfrag,fmol)
+    ! else
+    call screenedcoulomb(nfrag,fmol,ec2)
+    if(do_screen) ec=ec2
+    ! endif
 
     write(*,'(a)') ''
     write(*,'(a)') ''

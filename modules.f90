@@ -87,6 +87,7 @@ logical do_grad ! do gradient
 character(120) filevec(5)
 logical nchess
 logical user_fragments
+logical do_screen ! charge-penetration correction
 end module logic
 
 
